@@ -1,0 +1,3 @@
+app:
+    resource: "@QrCodeBundle/Controller/"
+    type: annotation

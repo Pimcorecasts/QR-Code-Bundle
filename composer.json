@@ -1,0 +1,22 @@
+{
+  "name": "pimcorecasts/qr-code-bundle",
+  "type": "pimcore-bundle",
+  "license": "GPL-3.0",
+  "require": {
+    "pimcore/pimcore": ">=10.0",
+    "twig/twig": "^3.0",
+    "endroid/qr-code": "^4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pimcorecasts\\Bundle\\QrCodeBundle\\": "src/"
+    }
+  },
+  "extra": {
+    "pimcore": {
+      "bundles": [
+        "Pimcorecasts\\Bundle\\QrCode\\QrCodeBundle"
+      ]
+    }
+  }
+}
