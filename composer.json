@@ -15,7 +15,7 @@
   "extra": {
     "pimcore": {
       "bundles": [
-        "Pimcorecasts\\Bundle\\QrCode\\QrCodeBundle"
+        "Pimcorecasts\\Bundle\\QrCodeBundle\\PimcorecastsQrCodeBundle"
       ]
     }
   }

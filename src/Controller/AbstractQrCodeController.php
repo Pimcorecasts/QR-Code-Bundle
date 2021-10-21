@@ -5,7 +5,7 @@
  * Time: 10:38
  *
  */
-namespace Pimcorecasts\Bundle\QrCode\Controller;
+namespace Pimcorecasts\Bundle\QrCodeBundle\Controller;
 
 use Pimcore\Controller\FrontendController;
 

@@ -5,11 +5,12 @@
  * Time: 10:35
  *
  */
-namespace Pimcorecasts\Bundle\QrCode;
+namespace Pimcorecasts\Bundle\QrCodeBundle;
 
 use Pimcore\Extension\Bundle\AbstractPimcoreBundle;
+use Pimcorecasts\Bundle\QrCodeBundle\Installer\Installer;
 
-class QrCodeBundle extends AbstractPimcoreBundle
+class PimcorecastsQrCodeBundle extends AbstractPimcoreBundle
 {
     public function getJsPaths()
     {
@@ -36,7 +37,7 @@ class QrCodeBundle extends AbstractPimcoreBundle
 
     public function getInstaller()
     {
-        return $this->container->get(Installer::class);
+        return $this->container->get(Installer::class );
     }
 
 
