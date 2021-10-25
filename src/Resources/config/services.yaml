@@ -13,7 +13,11 @@ services:
         public: true
         arguments:
             $bundle: "@=service('kernel').getBundle('PimcorecastsQrCodeBundle')"
-#
+
+# Services
+    Pimcorecasts\Bundle\QrCodeBundle\Services\QrDataService:
+        public: true
+
 #    Pimcorecasts\Bundle\QrCode\Service\:
 #        resource: '../../Service'
 #        public: true
