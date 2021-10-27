@@ -9,18 +9,18 @@ namespace Pimcorecasts\Bundle\QrCodeBundle\Controller;
 
 
 use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-// Defult uses
+use Endroid\QrCode\Writer\PngWriter;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\Service;
-use Pimcorecasts\Bundle\QrCodeBundle\Controller\AbstractQrCodeController;
 use Pimcorecasts\Bundle\QrCodeBundle\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function Sabre\Event\Loop\instance;
+
+// Defult uses
 
 
 class QrPreviewController extends AbstractQrCodeController {
@@ -46,8 +46,19 @@ class QrPreviewController extends AbstractQrCodeController {
         $object = Service::getElementFromSession('object', $context['objectId']);
         $qrData = '';
 
+
         if( $object instanceof QrCodeUrl ){
             $qrData = $this->qrDataService->getUrlData( $object );
+        }
+
+        $foregroundColor = new Color( 255, 255, 255);
+        if( $object->getForegroundColor() ){
+            $foregroundColor = new Color( $object->getForegroundColor()->getR(), $object->getForegroundColor()->getG(), $object->getForegroundColor()->getB() );
+        }
+
+        $backgroundColor = new Color( 0, 0, 0);
+        if( $object->getBackgroundColor() ){
+            $backgroundColor = new Color( $object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB() );
         }
 
         $qrCodeImage = Builder::create()
@@ -55,9 +66,27 @@ class QrPreviewController extends AbstractQrCodeController {
             ->data( $qrData ?? '' )
             ->encoding( new Encoding('UTF-8') )
             ->errorCorrectionLevel( new ErrorCorrectionLevelHigh() )
+            ->foregroundColor( $foregroundColor )
+            ->backgroundColor( $backgroundColor )
             ->size(300)
-            ->build()
         ;
+
+        if( $object->getLogo() ){
+            $logoImage = \Pimcore\Image::getInstance();
+            $logoImage->load( $object->getLogo()->getImage()->getLocalFile() );
+            $logoImage->contain( 80, 80, true );
+            $logoImage->frame( 100, 100 );
+            $logoImage->setBackgroundColor( $object->getBackgroundColor()->getHex() );
+
+            $tmpLogoPath = PIMCORE_WEB_ROOT . '/var/tmp/asset-cache/';
+
+            $logoImage->save( $tmpLogoPath . '/qr-' . $object->getId() . '.png', 'png');
+
+            $qrCodeImage->logoPath(  $tmpLogoPath . '/qr-' . $object->getId() . '.png' );
+        }
+
+        // Build Logo
+        $qrCodeImage = $qrCodeImage->build();
 
         return new Response( $qrCodeImage->getString(), 200, [
             'Content-Type' => $qrCodeImage->getMimeType()
