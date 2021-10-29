@@ -5,7 +5,7 @@
  * Time: 10:38
  *
  */
-namespace Pimcorecasts\Bundle\QrCodeBundle\Controller;
+namespace Pimcorecasts\Bundle\QrCode\Controller;
 
 
 use Endroid\QrCode\Builder\Builder;
@@ -15,7 +15,7 @@ use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\Service;
-use Pimcorecasts\Bundle\QrCodeBundle\Services\QrDataService;
+use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,9 +47,11 @@ class QrPreviewController extends AbstractQrCodeController {
         $qrData = '';
 
 
-        if( $object instanceof QrCodeUrl ){
-            $qrData = $this->qrDataService->getUrlData( $object );
+        // Fallback if the object is opened first time and no session exists.
+        if( !$object instanceof QrCodeUrl ){
+            $object = QrCodeUrl::getById( $context['objectId'] );
         }
+        $qrData = $this->qrDataService->getUrlData( $object );
 
         $foregroundColor = new Color( 255, 255, 255);
         if( $object->getForegroundColor() ){

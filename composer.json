@@ -9,13 +9,13 @@
   },
   "autoload": {
     "psr-4": {
-      "Pimcorecasts\\Bundle\\QrCodeBundle\\": "src/"
+      "Pimcorecasts\\Bundle\\QrCode\\": "src/"
     }
   },
   "extra": {
     "pimcore": {
       "bundles": [
-        "Pimcorecasts\\Bundle\\QrCodeBundle\\PimcorecastsQrCodeBundle"
+        "Pimcorecasts\\Bundle\\QrCode\\QrCodeBundle"
       ]
     }
   }

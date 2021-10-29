@@ -5,10 +5,9 @@
  * Time: 10:38
  *
  */
-namespace Pimcorecasts\Bundle\QrCodeBundle\Controller;
+namespace Pimcorecasts\Bundle\QrCode\Controller;
 
 
-use Pimcorecasts\Bundle\QrCodeBundle\Controller\AbstractQrCodeController;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**

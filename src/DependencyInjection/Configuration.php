@@ -7,7 +7,7 @@
  */
 
 
-namespace Pimcorecasts\Bundle\QrCodeBundle\DependencyInjection;
+namespace Pimcorecasts\Bundle\QrCode\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

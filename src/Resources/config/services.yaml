@@ -4,18 +4,18 @@ services:
         autoconfigure: true
         public: false
 
-    Pimcorecasts\Bundle\QrCodeBundle\Controller\:
+    Pimcorecasts\Bundle\QrCode\Controller\:
         resource: '../../Controller'
         public: true
         tags: [ 'controller.service_arguments' ]
 
-    Pimcorecasts\Bundle\QrCodeBundle\Installer\Installer:
+    Pimcorecasts\Bundle\QrCode\Installer\Installer:
         public: true
         arguments:
-            $bundle: "@=service('kernel').getBundle('PimcorecastsQrCodeBundle')"
+            $bundle: "@=service('kernel').getBundle('QrCodeBundle')"
 
 # Services
-    Pimcorecasts\Bundle\QrCodeBundle\Services\QrDataService:
+    Pimcorecasts\Bundle\QrCode\Services\QrDataService:
         public: true
 
 #    Pimcorecasts\Bundle\QrCode\Service\:

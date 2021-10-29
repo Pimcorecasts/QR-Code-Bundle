@@ -6,7 +6,7 @@
  *
  */
 
-namespace Pimcorecasts\Bundle\QrCodeBundle\Services;
+namespace Pimcorecasts\Bundle\QrCode\Services;
 
 use Pimcore\Model\DataObject\QrCodeUrl;
 

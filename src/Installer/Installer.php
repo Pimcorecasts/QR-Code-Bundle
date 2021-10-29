@@ -5,7 +5,7 @@
  * Time: 10:37
  *
  */
-namespace Pimcorecasts\Bundle\QrCodeBundle\Installer;
+namespace Pimcorecasts\Bundle\QrCode\Installer;
 
 use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
 
