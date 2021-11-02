@@ -13,6 +13,7 @@ use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
+use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\Service;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
@@ -44,14 +45,12 @@ class QrPreviewController extends AbstractQrCodeController {
          * @var QrCodeUrl
          */
         $object = Service::getElementFromSession('object', $context['objectId']);
-        $qrData = '';
-
 
         // Fallback if the object is opened first time and no session exists.
         if( !$object instanceof QrCodeUrl ){
             $object = QrCodeUrl::getById( $context['objectId'] );
         }
-        $qrData = $this->qrDataService->getUrlData( $object );
+        $qrData = $this->qrDataService->getUrlData( $object, '' );
 
         $foregroundColor = new Color( 255, 255, 255);
         if( $object->getForegroundColor() ){
@@ -63,6 +62,7 @@ class QrPreviewController extends AbstractQrCodeController {
             $backgroundColor = new Color( $object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB() );
         }
 
+        // Generate QR Code
         $qrCodeImage = Builder::create()
             ->writer( new PngWriter() )
             ->data( $qrData ?? '' )
@@ -73,8 +73,10 @@ class QrPreviewController extends AbstractQrCodeController {
             ->size(300)
         ;
 
-        if( $object->getLogo() ){
+        // Get the Logo if available
+        if( $object->getLogo() instanceof Asset ){
             $logoImage = \Pimcore\Image::getInstance();
+            // Load full path
             $logoImage->load( $object->getLogo()->getImage()->getLocalFile() );
             $logoImage->contain( 80, 80, true );
             $logoImage->frame( 100, 100 );
@@ -87,9 +89,10 @@ class QrPreviewController extends AbstractQrCodeController {
             $qrCodeImage->logoPath(  $tmpLogoPath . '/qr-' . $object->getId() . '.png' );
         }
 
-        // Build Logo
+        // Build QR Code
         $qrCodeImage = $qrCodeImage->build();
 
+        // Return QR Code (image)
         return new Response( $qrCodeImage->getString(), 200, [
             'Content-Type' => $qrCodeImage->getMimeType()
         ] );

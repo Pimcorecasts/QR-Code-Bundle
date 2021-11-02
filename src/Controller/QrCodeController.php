@@ -8,6 +8,9 @@
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
 
+use Pimcore\Model\DataObject\Data\UrlSlug;
+use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -23,8 +26,20 @@ class QrCodeController extends AbstractQrCodeController {
     public function defaultUrlAction( $identifier = null ){
 
         // Default Url / Document
+        die('Äasd');
 
     }
+
+    public function slugAction( Request $request, QrCodeObject $object, UrlSlug $urlSlug ) {
+
+        p_r('slug');die();
+
+        return [
+            'obj' => $object
+        ];
+
+    }
+
 
     /**
      * @Route("/qr~-~vcard/{identifier?}", name="index")
