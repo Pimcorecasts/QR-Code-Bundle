@@ -8,9 +8,11 @@
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
 
-use Pimcore\Model\DataObject\Data\UrlSlug;
-use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
+use Pimcore\Model\DataObject\QrCodeUrl;
+use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
+use Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -18,31 +20,33 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class QrCodeController extends AbstractQrCodeController {
 
+    private QrDataService $qrDataService;
+
+    public function __construct( QrDataService $qrDataService )
+    {
+        $this->qrDataService = $qrDataService;
+    }
 
     /**
      * @Route("/qr~-~code/{identifier?}", name="index")
-     * Default Url und übernommene qr-codes
+     * Default Url QR Code and all imported old codes
      */
-    public function defaultUrlAction( $identifier = null ){
+    public function defaultUrlAction( Request $request, $identifier = null ){
 
         // Default Url / Document
-        die('Äasd');
+        $slugData = UrlSlugResolver::resolveSlug( '/' . $identifier );
 
-    }
+        if( $obj = QrCodeUrl::getById( $slugData->getObjectId() ); ){
 
-    public function slugAction( Request $request, QrCodeObject $object, UrlSlug $urlSlug ) {
+            return $this->redirect( $this->qrDataService->getUrlData( $obj ) );
+        }
 
-        p_r('slug');die();
-
-        return [
-            'obj' => $object
-        ];
-
+        throw new NotFoundHttpException('Qr Code Url Object not found')
     }
 
 
     /**
-     * @Route("/qr~-~vcard/{identifier?}", name="index")
+     * @Route("/qr~-~vcard/{identifier?}", name="vcard")
      * Default Url und übernommene qr-codes
      */
     public function vcardAction( $identifier = null ){
@@ -50,7 +54,7 @@ class QrCodeController extends AbstractQrCodeController {
     }
 
     /**
-     * @Route("/qr~-~location/{identifier?}", name="index")
+     * @Route("/qr~-~location/{identifier?}", name="location")
      * Default Url und übernommene qr-codes
      */
     public function locationAction( $identifier = null ){
@@ -58,7 +62,7 @@ class QrCodeController extends AbstractQrCodeController {
     }
 
     /**
-     * @Route("/qr~-~event/{identifier?}", name="index")
+     * @Route("/qr~-~event/{identifier?}", name="event")
      * Default Url und übernommene qr-codes
      */
     public function eventAction( $identifier = null ){
@@ -67,7 +71,7 @@ class QrCodeController extends AbstractQrCodeController {
 
 
     /**
-     * @Route("/qr~-~wifi/{identifier?}", name="index")
+     * @Route("/qr~-~wifi/{identifier?}", name="wifi")
      * Default Url und übernommene qr-codes
      */
     public function wifiAction( $identifier = null ){

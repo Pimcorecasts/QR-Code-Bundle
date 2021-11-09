@@ -9,6 +9,9 @@ namespace Pimcorecasts\Bundle\QrCode\Model;
 
 use Pimcore\Model\DataObject\Concrete;
 
+/**
+ * Container to check if all QR Code sub Objects from same Type
+ */
 class QrCodeObject extends Concrete {
 
 }

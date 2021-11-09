@@ -52,12 +52,12 @@ class QrPreviewController extends AbstractQrCodeController {
         }
         $qrData = $this->qrDataService->getUrlData( $object, '' );
 
-        $foregroundColor = new Color( 255, 255, 255);
+        $foregroundColor = new Color( 0, 0, 0);
         if( $object->getForegroundColor() ){
             $foregroundColor = new Color( $object->getForegroundColor()->getR(), $object->getForegroundColor()->getG(), $object->getForegroundColor()->getB() );
         }
 
-        $backgroundColor = new Color( 0, 0, 0);
+        $backgroundColor = new Color( 255, 255, 255);
         if( $object->getBackgroundColor() ){
             $backgroundColor = new Color( $object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB() );
         }

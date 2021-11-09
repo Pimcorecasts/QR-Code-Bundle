@@ -13,6 +13,12 @@ use Pimcore\Model\DataObject\QrCodeUrl;
 class QrDataService
 {
 
+    /**
+     * @param QrCodeUrl $urlObject
+     * @param string $default
+     * @return string|null
+     * @throws \Exception
+     */
     public function getUrlData( QrCodeUrl $urlObject, string $default = '' ) : ?string
     {
 
