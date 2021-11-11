@@ -8,7 +8,9 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Services;
 
+use Carbon\Carbon;
 use Pimcore\Model\DataObject\QrCodeUrl;
+use Pimcore\Model\DataObject\QrVCard;
 
 class QrDataService
 {
@@ -19,19 +21,23 @@ class QrDataService
      * @return string|null
      * @throws \Exception
      */
-    public function getUrlData( QrCodeUrl $urlObject, string $default = '' ) : ?string
+    public function getUrlData( QrCodeUrl $qrObject, string $default = '' ) : ?string
     {
 
-        $qrData = $urlObject->getUrlText() ?? $default;
-        if( !empty( $urlObject->getUrl() ) ){
-            $qrData = $urlObject->getUrl()->getUrl();
+        $qrData = $qrObject->getUrlText() ?? $default;
+        if( !empty( $qrObject->getUrl() ) ){
+            $qrData = $qrObject->getUrl()->getUrl();
         }
 
         return $qrData;
     }
 
 
-    public function getVCardData( QrCodeUrl $urlObject ) : ?string
+    /**
+     * @param QrVCard $qrObject
+     * @return string|null
+     */
+    public function getVCardData( QrVCard $qrObject ) : ?string
     {
 
         /*
@@ -55,6 +61,17 @@ class QrDataService
          * END:VCARD
          *
          */
+
+        $qrData = [];
+        $qrData[] = 'BEGIN:VCARD';
+        $qrData[] = 'VERSION:4.0';
+
+        $qrData[] = 'N:' . $qrObject->getLastname() . ';' . $qrObject->getFirstname() . ';;' . $qrObject->getPrefix() . ';' . $qrObject->getSuffix();
+        $qrData[] = 'FN:' . $qrObject->getCompany();
+        $qrData[] = 'ROLE:' . $qrObject->getRole();
+
+        $qrData[] = 'REV:' . Carbon::createFromTimestamp( $qrObject->getModificationDate() )->format("Ymd\THis\Z");
+        $qrData[] = 'END:4.0';
 
         return '';
     }

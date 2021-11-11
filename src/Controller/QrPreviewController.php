@@ -17,7 +17,9 @@ use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\QrCodeUrl;
+use Pimcore\Model\DataObject\QrVCard;
 use Pimcore\Model\DataObject\Service;
+use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,12 +51,17 @@ class QrPreviewController extends AbstractQrCodeController
          * @var QrCodeUrl
          */
         $object = Service::getElementFromSession('object', $context['objectId']);
+        if( is_null( $object ) ){
+            $object = QrCodeObject::getById( $context['objectId'] );
+        }
 
         // Fallback if the object is opened first time and no session exists.
-        if (!$object instanceof QrCodeUrl) {
-            $object = QrCodeUrl::getById($context['objectId']);
+        if( $object instanceof QrVCard ){
+            $qrData = $this->qrDataService->getVCardData( $object );
+        }else{
+            $qrData = $this->qrDataService->getUrlData($object, '');
         }
-        $qrData = $this->qrDataService->getUrlData($object, '');
+
 
         $foregroundColor = new Color(0, 0, 0);
         if ($object->getForegroundColor()) {
