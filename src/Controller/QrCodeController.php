@@ -15,6 +15,7 @@ use Pimcore\Model\DataObject\QrVCard;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,7 +33,7 @@ class QrCodeController extends AbstractQrCodeController
     }
 
     /**
-     * @Route("/qr~-~code/{identifier?}", name="index")
+     * @Route("/qr~-~code/{identifier?}", name="url")
      * Default Url QR Code and all imported old codes
      */
     public function defaultUrlAction(Request $request, $identifier = null)
@@ -79,25 +80,10 @@ class QrCodeController extends AbstractQrCodeController
 
         if ($qrObject = QrVCard::getById( $slugData->getObjectId() ) ) {
 
-            $url = $this->qrDataService->getVCardData( $qrObject );
-
-            $slug = '';
-            if( !empty( $qrObject->getSlug() ) ){
-                $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
-            }
-
-            $params = [];
-            if( $qrObject->getAnalytics() ){
-                $params = [
-                    'source=mobile',
-                    'medium=qr-code',
-                    'name=' . $slug
-                ];
-
-                $url = $url . '?' . implode( '&', $params );
-            }
-
-            return $this->redirect( $url );
+            $data = $this->qrDataService->getVCardData( $qrObject );
+            return new Response($data, Response::HTTP_OK, [
+                'mime-type' => 'text/vcard'
+            ]);
         }
 
         throw new NotFoundHttpException('QrCode Url Object not found');

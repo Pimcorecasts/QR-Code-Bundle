@@ -64,16 +64,18 @@ class QrDataService
 
         $qrData = [];
         $qrData[] = 'BEGIN:VCARD';
-        $qrData[] = 'VERSION:4.0';
+        $qrData[] = 'VERSION:3.0';
 
         $qrData[] = 'N:' . $qrObject->getLastname() . ';' . $qrObject->getFirstname() . ';;' . $qrObject->getPrefix() . ';' . $qrObject->getSuffix();
         $qrData[] = 'FN:' . $qrObject->getCompany();
-        $qrData[] = 'ROLE:' . $qrObject->getRole();
+        $qrData[] = 'TITLE:' . $qrObject->getRole();
 
         $qrData[] = 'REV:' . Carbon::createFromTimestamp( $qrObject->getModificationDate() )->format("Ymd\THis\Z");
-        $qrData[] = 'END:4.0';
+        $qrData[] = 'END:VCARD';
+        //p_r($qrData);
 
-        return '';
+        return implode( "\r\n", $qrData);
     }
+
 
 }

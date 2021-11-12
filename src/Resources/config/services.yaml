@@ -18,6 +18,14 @@ services:
     Pimcorecasts\Bundle\QrCode\Services\QrDataService:
         public: true
 
+# LinkGenerator
+    Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator:
+        public: true
+
+# Slug Service
+    Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver:
+        public: true
+
 #    Pimcorecasts\Bundle\QrCode\Service\:
 #        resource: '../../Service'
 #        public: true

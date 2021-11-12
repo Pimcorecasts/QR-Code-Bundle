@@ -19,6 +19,7 @@ use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\QrVCard;
 use Pimcore\Model\DataObject\Service;
+use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
 use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +43,7 @@ class QrPreviewController extends AbstractQrCodeController
     /**
      * @Route("/admin/qr~-~preview", name="qr-preview")
      */
-    public function defaultUrlAction(Request $request)
+    public function defaultUrlAction(Request $request, QrCodeLinkGenerator $qrCodeLinkGenerator )
     {
 
         $context = json_decode($request->get('context'), true);
@@ -57,7 +58,15 @@ class QrPreviewController extends AbstractQrCodeController
 
         // Fallback if the object is opened first time and no session exists.
         if( $object instanceof QrVCard ){
-            $qrData = $this->qrDataService->getVCardData( $object );
+            // if Dynamic
+            if( $object->getDynamic() ){
+                // data is url to server
+                $qrData = \Pimcore\Tool::getHostUrl() . $qrCodeLinkGenerator->generate( $object );
+            }else{
+                // if static get all data into the QR Code
+                $qrData = $this->qrDataService->getVCardData( $object );
+                //p_r($qrData);
+            }
         }else{
             $qrData = $this->qrDataService->getUrlData($object, '');
         }
@@ -72,6 +81,7 @@ class QrPreviewController extends AbstractQrCodeController
         if ($object->getBackgroundColor()) {
             $backgroundColor = new Color($object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB());
         }
+
 
         // Generate QR Code
         $qrCodeImage = Builder::create()
