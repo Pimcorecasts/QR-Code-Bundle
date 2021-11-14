@@ -75,11 +75,10 @@ class QrCodeController extends AbstractQrCodeController
      */
     public function vcardAction(Request $request, $identifier = null)
     {
-        // v-card
+        // Get the VCard Slug
         $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
 
         if ($qrObject = QrVCard::getById( $slugData->getObjectId() ) ) {
-
             $data = $this->qrDataService->getVCardData( $qrObject );
             return new Response($data, Response::HTTP_OK, [
                 'mime-type' => 'text/vcard'

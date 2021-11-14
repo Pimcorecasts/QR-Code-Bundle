@@ -58,7 +58,7 @@ class QrPreviewController extends AbstractQrCodeController
 
         // Fallback if the object is opened first time and no session exists.
         if( $object instanceof QrVCard ){
-            // if Dynamic
+            // If Data is changeable use Link, else use the Data in QR Code
             if( $object->getDynamic() ){
                 // data is url to server
                 $qrData = \Pimcore\Tool::getHostUrl() . $qrCodeLinkGenerator->generate( $object );
