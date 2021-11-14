@@ -13,14 +13,12 @@ namespace Pimcorecasts\Bundle\QrCode\Controller;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-use Endroid\QrCode\Writer\PngWriter;
-use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\QrVCard;
 use Pimcore\Model\DataObject\Service;
 use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
 use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
+use Pimcorecasts\Bundle\QrCode\Model\QrGeneratorModel;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,56 +59,25 @@ class QrPreviewController extends AbstractQrCodeController
             // If Data is changeable use Link, else use the Data in QR Code
             if( $object->getDynamic() ){
                 // data is url to server
-                $qrData = \Pimcore\Tool::getHostUrl() . $qrCodeLinkGenerator->generate( $object );
+                $qrData = $request->getSchemeAndHttpHost() . $qrCodeLinkGenerator->generate( $object );
             }else{
                 // if static get all data into the QR Code
                 $qrData = $this->qrDataService->getVCardData( $object );
-                //p_r($qrData);
             }
         }else{
             $qrData = $this->qrDataService->getUrlData($object, '');
         }
 
-
-        $foregroundColor = new Color(0, 0, 0);
-        if ($object->getForegroundColor()) {
-            $foregroundColor = new Color($object->getForegroundColor()->getR(), $object->getForegroundColor()->getG(), $object->getForegroundColor()->getB());
-        }
-
-        $backgroundColor = new Color(255, 255, 255);
-        if ($object->getBackgroundColor()) {
-            $backgroundColor = new Color($object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB());
-        }
-
-
-        // Generate QR Code
-        $qrCodeImage = Builder::create()
-            ->writer(new PngWriter())
-            ->data($qrData ?? '')
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
-            ->foregroundColor($foregroundColor)
-            ->backgroundColor($backgroundColor)
-            ->size(300);
-
-        // Get the Logo if available
-        if ($object->getLogo() instanceof Asset) {
-            $logoImage = \Pimcore\Image::getInstance();
-            // Load full path
-            $logoImage->load($object->getLogo()->getImage()->getLocalFile());
-            $logoImage->contain(80, 80, true);
-            $logoImage->frame(100, 100);
-            $logoImage->setBackgroundColor($object->getBackgroundColor()->getHex());
-
-            $tmpLogoPath = PIMCORE_WEB_ROOT . '/var/tmp/asset-cache/';
-
-            $logoImage->save($tmpLogoPath . '/qr-' . $object->getId() . '.png', 'png');
-
-            $qrCodeImage->logoPath($tmpLogoPath . '/qr-' . $object->getId() . '.png');
-        }
-
         // Build QR Code
-        $qrCodeImage = $qrCodeImage->build();
+        $qrCode = new QrGeneratorModel( $qrData, 300 );
+        if( $object->getForegroundColor() ){
+            $qrCode->setForegroundColor( $object->getForegroundColor()->getR(), $object->getForegroundColor()->getG(), $object->getForegroundColor()->getB() );
+        }
+        if( $object->getBackgroundColor() ){
+            $qrCode->setBackgrounsColor( $object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB() );
+        }
+
+        $qrCodeImage = $qrCode->buildQrCode();
 
         // Return QR Code (image)
         return new Response($qrCodeImage->getString(), 200, [

@@ -64,7 +64,7 @@ class QrDataService
 
         $qrData = [];
         $qrData[] = 'BEGIN:VCARD';
-        $qrData[] = 'VERSION:3.0';
+        $qrData[] = 'VERSION:4.0';
 
         $qrData[] = 'N:' . $qrObject->getLastname() . ';' . $qrObject->getFirstname() . ';;' . $qrObject->getPrefix() . ';' . $qrObject->getSuffix();
         $qrData[] = 'FN:' . $qrObject->getCompany();
