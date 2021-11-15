@@ -54,28 +54,12 @@ class QrPreviewController extends AbstractQrCodeController
             $object = QrCodeObject::getById( $context['objectId'] );
         }
 
-        // Fallback if the object is opened first time and no session exists.
-        if( $object instanceof QrVCard ){
-            // If Data is changeable use Link, else use the Data in QR Code
-            if( $object->getDynamic() ){
-                // data is url to server
-                $qrData = $request->getSchemeAndHttpHost() . $qrCodeLinkGenerator->generate( $object );
-            }else{
-                // if static get all data into the QR Code
-                $qrData = $this->qrDataService->getVCardData( $object );
-            }
-        }else{
-            $qrData = $this->qrDataService->getUrlData($object, '');
-        }
+        $qrData = $this->qrDataService->getQrCodeData( $object );
 
         // Build QR Code
         $qrCode = new QrGeneratorModel( $qrData, 300 );
-        if( $object->getForegroundColor() ){
-            $qrCode->setForegroundColor( $object->getForegroundColor()->getR(), $object->getForegroundColor()->getG(), $object->getForegroundColor()->getB() );
-        }
-        if( $object->getBackgroundColor() ){
-            $qrCode->setBackgrounsColor( $object->getBackgroundColor()->getR(), $object->getBackgroundColor()->getG(), $object->getBackgroundColor()->getB() );
-        }
+        $qrCode->setForegroundColor( $object->getForegroundColor() );
+        $qrCode->setBackgroundColor( $object->getBackgroundColor() );
 
         $qrCodeImage = $qrCode->buildQrCode();
 

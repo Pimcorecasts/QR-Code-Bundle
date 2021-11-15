@@ -9,11 +9,52 @@
 namespace Pimcorecasts\Bundle\QrCode\Services;
 
 use Carbon\Carbon;
+use Pimcore;
 use Pimcore\Model\DataObject\QrCodeUrl;
 use Pimcore\Model\DataObject\QrVCard;
+use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
+use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class QrDataService
 {
+    private $qrCodeLinkGenerator;
+    private $request;
+
+    public function __construct( QrCodeLinkGenerator $qrCodeLinkGenerator, RequestStack $requestStack )
+    {
+        $this->qrCodeLinkGenerator = $qrCodeLinkGenerator;
+        $this->request = $requestStack->getCurrentRequest();
+    }
+
+    public function getQrCodeData( QrCodeObject $qrCodeObject ){
+
+        $uriAndScheme = Pimcore\Tool::getHostUrl();
+        if( $uriAndScheme == '' && $this->request ){
+            $uriAndScheme = $this->request->getSchemeAndHttpHost();
+        }
+
+        // Fallback if the object is opened first time and no session exists.
+        if( $qrCodeObject instanceof QrVCard ){
+            // If Data is changeable use Link, else use the Data in QR Code
+            if( $qrCodeObject->getDynamic() ){
+                // data is url to server
+                $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
+            }else{
+                // if static get all data into the QR Code
+                $qrData = $this->getVCardData( $qrCodeObject );
+            }
+        }elseif( $qrCodeObject instanceof QrCodeUrl ){
+            $qrData = $this->getUrlData($qrCodeObject, '');
+            if( $qrCodeObject->getAnalytics() ){
+                $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
+            }
+        }else{
+            $qrData = '';
+        }
+
+        return $qrData;
+    }
 
     /**
      * @param QrCodeUrl $urlObject

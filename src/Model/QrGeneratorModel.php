@@ -14,6 +14,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
 use Pimcore\Model\Asset;
+use Pimcore\Model\DataObject\Data\RgbaColor;
 
 class QrGeneratorModel
 {
@@ -52,6 +53,13 @@ class QrGeneratorModel
         return $this;
     }
 
+    public function setForegroundColor( RgbaColor $color = null ){
+        if( !$color ){
+            $color = new RgbaColor( 0, 0, 0, 1 );
+        }
+        $this->setForegroundColorByRgb( $color->getR(), $color->getG(), $color->getB() );
+    }
+
     /**
      *
      * @param mixed $r
@@ -59,7 +67,7 @@ class QrGeneratorModel
      * @param mixed $b
      * @return void
      */
-    public function setForegroundColor( $r, $g, $b ){
+    public function setForegroundColorByRgb( $r, $g, $b ){
         $color = new Color( 0, 0, 0 );
         if( $r != '' && $g != '' && $b != '' ){
             $color = new Color( $r, $g, $b );
@@ -81,6 +89,13 @@ class QrGeneratorModel
         return $color;
     }
 
+    public function setBackgroundColor( RgbaColor $color = null ){
+        if( !$color ){
+            $color = new RgbaColor( 255, 255, 255, 1 );
+        }
+        $this->setBackgroundColorByRgb( $color->getR(), $color->getG(), $color->getB() );
+    }
+
     /**
      *
      * @param mixed $r
@@ -88,8 +103,8 @@ class QrGeneratorModel
      * @param mixed $b
      * @return void
      */
-    public function setBackgrounsColor( $r, $g, $b ){
-        $color = new Color( 255, 2555, 255 );
+    public function setBackgroundColorByRgb( $r, $g, $b ){
+        $color = new Color( 255, 255, 255 );
         if( $r != '' && $g != '' && $b != '' ){
             $color = new Color( $r, $g, $b );
         }
