@@ -26,6 +26,11 @@ services:
     Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver:
         public: true
 
+# Options Provider
+    Pimcorecasts\Bundle\QrCode\OptionsProvider\DownloadSizeOptionsProvider:
+        public: true
+
+
 #    Pimcorecasts\Bundle\QrCode\Service\:
 #        resource: '../../Service'
 #        public: true

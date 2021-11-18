@@ -92,9 +92,14 @@ class QrCodeController extends AbstractQrCodeController
      * @Route("/qr~-~location/{identifier?}", name="location")
      * Default Url und übernommene qr-codes
      */
-    public function locationAction($identifier = null)
+    public function locationAction( Request $request, $identifier = null)
     {
-        // location
+        // Get the Location Slug
+        $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
+
+
+
+        throw new NotFoundHttpException('QrCode Url Object not found');
     }
 
     /**
