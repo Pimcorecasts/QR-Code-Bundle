@@ -9,15 +9,9 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
-
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Color\Color;
-use Endroid\QrCode\Encoding\Encoding;
-use Pimcore\Model\DataObject\QrCodeUrl;
-use Pimcore\Model\DataObject\QrVCard;
+use Pimcore\Model\DataObject\QrCode;
 use Pimcore\Model\DataObject\Service;
 use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
-use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
 use Pimcorecasts\Bundle\QrCode\Model\QrGeneratorModel;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,7 +45,7 @@ class QrPreviewController extends AbstractQrCodeController
          */
         $object = Service::getElementFromSession('object', $context['objectId']);
         if( is_null( $object ) ){
-            $object = QrCodeObject::getById( $context['objectId'] );
+            $object = QrCode::getById( $context['objectId'] );
         }
 
         $qrData = $this->qrDataService->getQrCodeData( $object );

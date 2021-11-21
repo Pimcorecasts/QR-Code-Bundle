@@ -10,10 +10,11 @@ namespace Pimcorecasts\Bundle\QrCode\Services;
 
 use Carbon\Carbon;
 use Pimcore;
-use Pimcore\Model\DataObject\QrCodeUrl;
-use Pimcore\Model\DataObject\QrVCard;
+use Pimcore\Model\DataObject\Objectbrick\Data\QrLocation;
+use Pimcore\Model\DataObject\Objectbrick\Data\QrUrl;
+use Pimcore\Model\DataObject\Objectbrick\Data\QrVCard;
+use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
-use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class QrDataService
@@ -27,7 +28,7 @@ class QrDataService
         $this->request = $requestStack->getCurrentRequest();
     }
 
-    public function getQrCodeData( QrCodeObject $qrCodeObject ){
+    public function getQrCodeData( QrCode $qrCodeObject ){
 
         $uriAndScheme = Pimcore\Tool::getHostUrl();
         if( $uriAndScheme == '' && $this->request ){
@@ -35,20 +36,34 @@ class QrDataService
         }
 
         // Fallback if the object is opened first time and no session exists.
-        if( $qrCodeObject instanceof QrVCard ){
+        $qrContent = $qrCodeObject->getQrType();
+
+        $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
+
+        // QR Code VCard
+        if( $qrContent->getQrVCard() ){
             // If Data is changeable use Link, else use the Data in QR Code
-            if( $qrCodeObject->getDynamic() ){
+            if( $qrCodeObject->getUseStatic() ){
                 // data is url to server
-                $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
-            }else{
-                // if static get all data into the QR Code
                 $qrData = $this->getVCardData( $qrCodeObject );
+
             }
-        }elseif( $qrCodeObject instanceof QrCodeUrl ){
-            $qrData = $this->getUrlData($qrCodeObject, '');
-            if( $qrCodeObject->getAnalytics() ){
+
+        // QR Code URL
+        }elseif( $qrContent->getQrUrl() ){
+
+            $qrData = $this->getUrlData($qrContent->getQrUrl(), '');
+            if( $qrContent->getQrUrl()->getAnalytics() ){
                 $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
             }
+
+        // QR Code Geo Location
+        }elseif( $qrContent->getQrLocation() ){
+
+            if( $qrCodeObject->getUseStatic() ){
+                $qrData = $this->getGeoLocation($qrContent->getQrLocation());
+            }
+
         }else{
             $qrData = '';
         }
@@ -62,7 +77,7 @@ class QrDataService
      * @return string|null
      * @throws \Exception
      */
-    public function getUrlData( QrCodeUrl $qrObject, string $default = '' ) : ?string
+    public function getUrlData( QrUrl $qrObject, string $default = '' ) : ?string
     {
 
         $qrData = $qrObject->getUrlText() ?? $default;
@@ -78,8 +93,9 @@ class QrDataService
      * @param QrVCard $qrObject
      * @return string|null
      */
-    public function getVCardData( QrVCard $qrObject ) : ?string
+    public function getVCardData( QrCode $qrObject ) : ?string
     {
+        $vardData = $qrObject->getQrType()->getQrVCard();
 
         /*
          * Description: https://de.wikipedia.org/wiki/VCard
@@ -102,14 +118,13 @@ class QrDataService
          * END:VCARD
          *
          */
-
         $qrData = [];
         $qrData[] = 'BEGIN:VCARD';
         $qrData[] = 'VERSION:4.0';
 
-        $qrData[] = 'N:' . $qrObject->getLastname() . ';' . $qrObject->getFirstname() . ';;' . $qrObject->getPrefix() . ';' . $qrObject->getSuffix();
-        $qrData[] = 'FN:' . $qrObject->getCompany();
-        $qrData[] = 'TITLE:' . $qrObject->getRole();
+        $qrData[] = 'N:' . $vardData->getLastname() . ';' . $vardData->getFirstname() . ';;' . $vardData->getPrefix() . ';' . $vardData->getSuffix();
+        $qrData[] = 'FN:' . $vardData->getCompany();
+        $qrData[] = 'TITLE:' . $vardData->getRole();
 
         $qrData[] = 'REV:' . Carbon::createFromTimestamp( $qrObject->getModificationDate() )->format("Ymd\THis\Z");
         $qrData[] = 'END:VCARD';
@@ -118,5 +133,17 @@ class QrDataService
         return implode( "\r\n", $qrData);
     }
 
+    public function getGeoLocation( QrLocation $qrLocation ) : ?string
+    {
+
+        $link = "https://www.google.com/maps?q=%01.4f,%01.4f&z=15";
+
+        $qrData = $qrLocation->getGeoLocation();
+        if( !empty( $qrData ) ){
+            $link = sprintf( $link, $qrLocation->getGeoLocation()->getLatitude(), $qrLocation->getGeoLocation()->getLongitude() );
+        }
+
+        return $link;
+    }
 
 }

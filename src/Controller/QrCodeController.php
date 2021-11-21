@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route(name="qr-code_")
+ * @Route(name="qr-")
  */
 class QrCodeController extends AbstractQrCodeController
 {
@@ -33,7 +33,7 @@ class QrCodeController extends AbstractQrCodeController
     }
 
     /**
-     * @Route("/qr~-~code/{identifier?}", name="url")
+     * @Route("/qr~-~code/{identifier?}", name="code")
      * Default Url QR Code and all imported old codes
      */
     public function defaultUrlAction(Request $request, $identifier = null)
