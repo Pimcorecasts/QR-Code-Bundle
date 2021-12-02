@@ -7,6 +7,7 @@
  */
 namespace Pimcorecasts\Bundle\QrCode\Installer;
 
+use Pimcore\Model\DataObject;
 use Pimcore\Extension\Bundle\Installer\AbstractInstaller;
 use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
@@ -51,16 +52,25 @@ class Installer extends AbstractInstaller
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function isInstalled()
     {
+        $isInstalled = true;
+
+        // Check if all Classes and Bricks are installed
         if (
             !DataObject\ClassDefinition::getByName('QrCode') ||
-            !DataObject\ClassDefinition::getByName('QrLocation')
+
+            !DataObject\Objectbrick::getByName('QrLocation') ||
+            !DataObject\Objectbrick::getByName('QrUrl') ||
+            !DataObject\Objectbrick::getByName('QrVCard')
         ) {
-            return false;
+            $isInstalled = false;
         }
 
-        return true;
+        return $isInstalled;
     }
 
 
