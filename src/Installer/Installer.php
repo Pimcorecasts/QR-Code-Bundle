@@ -11,7 +11,8 @@ use Pimcore\Model\DataObject;
 use Pimcore\Extension\Bundle\Installer\AbstractInstaller;
 use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class Installer extends AbstractInstaller
 {
@@ -34,6 +35,26 @@ class Installer extends AbstractInstaller
     }
 
     public function install(){
+
+        $excutable = $this->params->has('pimcore_executable_php') ? $this->params->get('pimcore_executable_php') : '';
+
+
+        // Install Objects
+        $objectInstaller = Process::fromShellCommandline( $excutable . " bin/console ");
+        $objectInstaller->run();
+
+        if (!$objectInstaller->isSuccessful()) {
+            throw new ProcessFailedException($objectInstaller);
+        }
+
+
+        // Install ObjectBricks
+        $objectBrickInstaller = Process::fromShellCommandline($excutable . " bin/console ");
+        $objectBrickInstaller->run();
+
+        if (!$objectBrickInstaller->isSuccessful()) {
+            throw new ProcessFailedException($objectBrickInstaller);
+        }
 
 
     }
