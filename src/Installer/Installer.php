@@ -22,6 +22,17 @@ class Installer extends AbstractInstaller
      */
     private $params;
 
+    private $installerFiles = [
+        'class' => [
+            'class_QrCode_export.json',
+        ],
+        'objectbrick' => [
+            'objectbrick_QrLocation_export.json',
+            'objectbrick_QrUrl_export.json',
+            'objectbrick_QrVCard_export.json',
+        ]
+    ];
+
 
     public function getMigrationVersion(): string
     {
@@ -38,22 +49,31 @@ class Installer extends AbstractInstaller
 
         $excutable = $this->params->has('pimcore_executable_php') ? $this->params->get('pimcore_executable_php') : '';
 
+        $currentFolder = __DIR__;
 
-        // Install Objects
-        $objectInstaller = Process::fromShellCommandline( $excutable . " bin/console ");
-        $objectInstaller->run();
+        foreach( $this->installerFiles as $type => $items ){
+            if( $type == 'objectbrick' ){
+                foreach( $items as $item ){
+                    // Install Objectbricks
+                    $objectBrickInstaller = Process::fromShellCommandline($excutable . " bin/console " . $currentFolder . '/classes/' . $item);
+                    $objectBrickInstaller->run();
 
-        if (!$objectInstaller->isSuccessful()) {
-            throw new ProcessFailedException($objectInstaller);
-        }
+                    if (!$objectBrickInstaller->isSuccessful()) {
+                        throw new ProcessFailedException($objectBrickInstaller);
+                    }
+                }
+            }else{
+                foreach( $items as $item ){
+                    // Install classes
+                    $objectInstaller = Process::fromShellCommandline( $excutable . " bin/console " . $currentFolder . '/classes/' . $item);
+                    $objectInstaller->run();
 
+                    if (!$objectInstaller->isSuccessful()) {
+                        throw new ProcessFailedException($objectInstaller);
+                    }
+                }
+            }
 
-        // Install ObjectBricks
-        $objectBrickInstaller = Process::fromShellCommandline($excutable . " bin/console ");
-        $objectBrickInstaller->run();
-
-        if (!$objectBrickInstaller->isSuccessful()) {
-            throw new ProcessFailedException($objectBrickInstaller);
         }
 
 
