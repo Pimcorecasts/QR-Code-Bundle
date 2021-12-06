@@ -25,11 +25,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class QrCodeController extends AbstractQrCodeController
 {
 
-    private QrDataService $qrDataService;
-
-    public function __construct(QrDataService $qrDataService)
+    public function __construct()
     {
-        $this->qrDataService = $qrDataService;
+        parent::__construct();
     }
 
     /**

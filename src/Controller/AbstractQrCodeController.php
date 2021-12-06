@@ -11,4 +11,8 @@ use Pimcore\Controller\FrontendController;
 
 abstract class AbstractQrCodeController extends FrontendController {
 
+    public function __construct( private QrDataService $qrDataService )
+    {
+    }
+    
 }

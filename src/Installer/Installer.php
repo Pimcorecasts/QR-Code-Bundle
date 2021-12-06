@@ -16,12 +16,6 @@ use Symfony\Component\Process\Process;
 
 class Installer extends AbstractInstaller
 {
-
-    /**
-     * @var ContainerBagInterface|null
-     */
-    private $params;
-
     private $installerFiles = [
         'class' => [
             'class_QrCode_export.json',
@@ -39,9 +33,13 @@ class Installer extends AbstractInstaller
         return 'Version20211201000000';
     }
 
+    public function getLastMigrationVersionClassName(): ?string
+    {
+        // return fully qualified classname of last migration that should be marked as migrated during install
+        //return Version20211201000000::class;
+    }
 
-    public function __construct(ContainerBagInterface $params = null) {
-        $this->params = $params;
+    public function __construct(private ContainerBagInterface $params, $bundle) {
         parent::__construct();
     }
 
@@ -104,9 +102,9 @@ class Installer extends AbstractInstaller
         if (
             !DataObject\ClassDefinition::getByName('QrCode') ||
 
-            !DataObject\Objectbrick::getByName('QrLocation') ||
-            !DataObject\Objectbrick::getByName('QrUrl') ||
-            !DataObject\Objectbrick::getByName('QrVCard')
+            !DataObject\Objectbrick\Definition::getByKey('QrLocation') ||
+            !DataObject\Objectbrick\Definition::getByKey('QrUrl') ||
+            !DataObject\Objectbrick\Definition::getByKey('QrVCard')
         ) {
             $isInstalled = false;
         }

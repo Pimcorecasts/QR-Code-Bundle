@@ -28,13 +28,11 @@ class QrDownloadController extends AbstractQrCodeController
 {
 
 
-    private QrDataService $qrDataService;
-
-    public function __construct(QrDataService $qrDataService)
+    public function __construct()
     {
-        $this->qrDataService = $qrDataService;
+        parent::__construct();
     }
-
+    
     /**
      * @Route("/admin/qr~-~download/{object}", options={"expose"=true}, name="qr-code-download")
      */
