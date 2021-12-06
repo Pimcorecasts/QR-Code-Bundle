@@ -11,5 +11,4 @@ use Pimcore\Controller\FrontendController;
 
 abstract class AbstractQrCodeController extends FrontendController {
 
-
 }
