@@ -19,11 +19,22 @@ use Pimcore\Model\DataObject\Data\RgbaColor;
 class QrGeneratorModel
 {
 
-    private $qrData = null;
-    private int $size;
-    private $logo = null;
-    private $foregroundColor = null;
-    private $backgroundColor = null;
+    private $logoSizes = [
+        150 => [
+            'contain' => 40,
+            'frame' => 50
+        ],
+        300 => [
+            'contain' => 80,
+            'frame' => 100
+        ],
+        600 => [
+            'contain' => 180,
+            'frame' => 220
+        ]
+    ];
+
+    private $logoFile = null;
 
     /**
      *
@@ -34,20 +45,10 @@ class QrGeneratorModel
      * @param Color|null $backgroundColor
      * @return $this
      */
-    public function __construct( string $qrData = null, int $size = 300, Asset $logo = null,  Color $foregroundColor = null, Color $backgroundColor = null )
+    public function __construct( private ?string $qrData = null, private int $size = 300, private ?Asset $logo = null, private ?Color $foregroundColor = null, private ?Color $backgroundColor = null )
     {
-        $this->qrData = $qrData ?? null;
-        $this->size = $size;
         if( $logo instanceof Asset ){
             $this->setLogo($logo);
-        }
-
-        if( $foregroundColor ){
-            $this->foregroundColor = $foregroundColor;
-        }
-
-        if( $backgroundColor ){
-            $this->backgroundColor = $backgroundColor;
         }
 
         return $this;
@@ -140,22 +141,30 @@ class QrGeneratorModel
 
     public function setLogo( Asset $logo ){
 
+
+
         // Get the Logo if available
         if ($logo instanceof Asset) {
             $logoImage = \Pimcore\Image::getInstance();
             // Load full path
-            $logoImage->load($$logo->getImage()->getLocalFile());
-            $logoImage->contain(80, 80, true);
-            $logoImage->frame(100, 100);
+            $logoImage->load($logo->getLocalFile());
+
+            $logoImage->contain($this->logoSizes[$this->size]['contain'], $this->logoSizes[$this->size]['contain'], true);
+            $logoImage->frame($this->logoSizes[$this->size]['frame'], $this->logoSizes[$this->size]['frame']);
             $logoImage->setBackgroundColor( sprintf("#%02x%02x%02x", $this->backgroundColor->getRed(), $this->backgroundColor->getGreen(), $this->backgroundColor->getBlue() ) );
 
             $tmpLogoPath = PIMCORE_WEB_ROOT . '/var/tmp/asset-cache/';
 
             $logoImage->save($tmpLogoPath . '/qr-' . $logo->getId() . '.png', 'png');
 
-            $this->logo = $tmpLogoPath . '/qr-' . $logo->getId() . '.png';
+            $this->logoFile = $tmpLogoPath . '/qr-' . $logo->getId() . '.png';
         }
 
+    }
+
+    private function getLogo(){
+
+        return $this->logoFile;
     }
 
     public function getQrDataImage(){
@@ -170,8 +179,8 @@ class QrGeneratorModel
             ->backgroundColor( $this->getBackgroundColor() )
             ->size($this->size);
 
-        if( $this->logo != '' ){
-            $qrCodeImage->logoPath( $this->logo );
+        if( $this->getLogo() ){
+            $qrCodeImage->logoPath( $this->getLogo() );
         }
 
         //$this->qrDataImage = $qrCodeImage;

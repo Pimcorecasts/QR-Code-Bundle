@@ -10,8 +10,7 @@
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
 
-use Pimcore\Model\DataObject\QrCodeUrl;
-use Pimcore\Model\DataObject\QrVCard;
+use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,9 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class QrCodeController extends AbstractQrCodeController
 {
 
-    public function __construct()
+    public function __construct( private QrDataService $qrDataService )
     {
-        parent::__construct();
     }
 
     /**
@@ -40,8 +38,7 @@ class QrCodeController extends AbstractQrCodeController
         // Default Url / Document
         $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
 
-        if ($qrObject = QrCodeUrl::getById($slugData->getObjectId())) {
-
+        if ($qrObject = QrCode::getById($slugData->getObjectId())) {
             $url = $this->qrDataService->getUrlData( $qrObject );
 
             $slug = '';
