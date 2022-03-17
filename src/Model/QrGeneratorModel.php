@@ -157,6 +157,8 @@ class QrGeneratorModel
      */
     public function setLogo( Asset $logo ){
 
+
+
         // Get the Logo if available
         if ($logo instanceof Asset) {
             $this->logoFile = $logo->getLocalFile();
