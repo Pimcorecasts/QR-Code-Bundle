@@ -28,21 +28,39 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class QrDownloadController extends AbstractQrCodeController
 {
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
     public function __construct( private QrDataService $qrDataService )
     {
     }
 
     /**
+<<<<<<< HEAD
      * @Route("/admin/qr~-~download/{object}/{imageType?}", options={"expose"=true}, name="qr-code-download")
+=======
+     * @Route("/admin/qr~-~download/{object}", options={"expose"=true}, name="qr-code-download")
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
      *
      * @param Request $request
      * @param QrCode $object
      * @return StreamedResponse
      */
+<<<<<<< HEAD
     public function defaultUrlAction(Request $request, QrCode $object, string $imageType = 'png' )
     {
         $size = $object->getQrDownloadSize() ?? 300;
         $response = new StreamedResponse( function() use ( $object, $size, $imageType ){
+=======
+    public function defaultUrlAction(Request $request, QrCode $object )
+    {
+
+
+        $size = $object->getQrDownloadSize() ?? 300;
+        $response = new StreamedResponse( function() use ( $object, $size ){
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
             $outputStream = fopen( 'php://output', 'wb' );
 
             $qrData = $this->qrDataService->getQrCodeData( $object );
@@ -55,7 +73,11 @@ class QrDownloadController extends AbstractQrCodeController
             if( ($logoAsset = $object->getLogo()) instanceof Hotspotimage){
                 $qrCode->setLogo( $logoAsset->getImage() );
             }
+<<<<<<< HEAD
             $qrCodeImage = $qrCode->buildQrCode( imageType: $imageType );
+=======
+            $qrCodeImage = $qrCode->buildQrCode();
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
 
             fputs( $outputStream, $qrCodeImage->getString() );
             fclose( $outputStream );

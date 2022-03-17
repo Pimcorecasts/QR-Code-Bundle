@@ -9,6 +9,10 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
 use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver;
@@ -38,6 +42,7 @@ class QrCodeController extends AbstractQrCodeController
         $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
 
         if ($qrObject = QrCode::getById($slugData->getObjectId())) {
+<<<<<<< HEAD
 
             // Url
             if( $qrObject->getQrType()->getQrUrl() ){
@@ -74,6 +79,13 @@ class QrCodeController extends AbstractQrCodeController
                 return new Response($data, Response::HTTP_OK, [
                     'Content-Type' => 'text/calendar'
                 ]);
+=======
+            $url = $this->qrDataService->getUrlData( $qrObject );
+
+            $slug = '';
+            if( !empty( $qrObject->getSlug() ) ){
+                $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
             }
 
         }

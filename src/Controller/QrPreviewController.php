@@ -24,6 +24,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class QrPreviewController extends AbstractQrCodeController
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
     public function __construct( private QrDataService $qrDataService )
     {
     }
@@ -55,7 +59,11 @@ class QrPreviewController extends AbstractQrCodeController
             $qrCode->setLogo( $logoAsset->getImage() );
         }
 
+<<<<<<< HEAD
         $qrCodeImage = $qrCode->buildQrCode( imageType: 'svg' );
+=======
+        $qrCodeImage = $qrCode->buildQrCode();
+>>>>>>> f2e366cf2c72e722d671dcdc9693eafc55a95482
 
         // Return QR Code (image)
         return new Response($qrCodeImage->getString(), 200, [
