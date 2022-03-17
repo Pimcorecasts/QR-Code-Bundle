@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class Installer extends AbstractInstaller
+class Installer extends SettingsStoreAwareInstaller
 {
     private $installerFiles = [
         'class' => [
@@ -79,7 +79,6 @@ class Installer extends AbstractInstaller
     }
 
     /**
-
      * @return bool
      */
     public function needsReloadAfterInstall()
@@ -90,7 +89,6 @@ class Installer extends AbstractInstaller
     /**
      * @return bool
      */
-
     public function isInstalled()
     {
         $isInstalled = true;
