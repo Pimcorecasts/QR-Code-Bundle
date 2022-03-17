@@ -13,17 +13,31 @@ use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
 use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Writer\SvgWriter;
+use Pimcore\Image;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\Data\RgbaColor;
+
 
 class QrGeneratorModel
 {
 
-    private $qrData = null;
-    private int $size;
-    private $logo = null;
-    private $foregroundColor = null;
-    private $backgroundColor = null;
+    private $logoSizes = [
+        150 => [
+            'contain' => 40,
+            'frame' => 50
+        ],
+        300 => [
+            'contain' => 80,
+            'frame' => 100
+        ],
+        600 => [
+            'contain' => 180,
+            'frame' => 220
+        ]
+    ];
+
+    private $logoFile = null;
 
     /**
      *
@@ -34,25 +48,19 @@ class QrGeneratorModel
      * @param Color|null $backgroundColor
      * @return $this
      */
-    public function __construct( string $qrData = null, int $size = 300, Asset $logo = null,  Color $foregroundColor = null, Color $backgroundColor = null )
+    public function __construct( private ?string $qrData = null, private int $size = 300, private ?Asset $logo = null, private ?Color $foregroundColor = null, private ?Color $backgroundColor = null )
     {
-        $this->qrData = $qrData ?? null;
-        $this->size = $size;
-        if( $logo instanceof Asset ){
+        if( $this->logo instanceof Asset ){
             $this->setLogo($logo);
-        }
-
-        if( $foregroundColor ){
-            $this->foregroundColor = $foregroundColor;
-        }
-
-        if( $backgroundColor ){
-            $this->backgroundColor = $backgroundColor;
         }
 
         return $this;
     }
 
+    /**
+     * @param RgbaColor|null $color
+     * @return void
+     */
     public function setForegroundColor( RgbaColor $color = null ){
         if( !$color ){
             $color = new RgbaColor( 0, 0, 0, 1 );
@@ -89,6 +97,10 @@ class QrGeneratorModel
         return $color;
     }
 
+    /**
+     * @param RgbaColor|null $color
+     * @return void
+     */
     public function setBackgroundColor( RgbaColor $color = null ){
         if( !$color ){
             $color = new RgbaColor( 255, 255, 255, 1 );
@@ -138,31 +150,58 @@ class QrGeneratorModel
     }
 
 
+    /**
+     * @param Asset $logo
+     * @return void
+     * @throws \Exception
+     */
     public function setLogo( Asset $logo ){
 
         // Get the Logo if available
         if ($logo instanceof Asset) {
-            $logoImage = \Pimcore\Image::getInstance();
-            // Load full path
-            $logoImage->load($$logo->getImage()->getLocalFile());
-            $logoImage->contain(80, 80, true);
-            $logoImage->frame(100, 100);
-            $logoImage->setBackgroundColor( sprintf("#%02x%02x%02x", $this->backgroundColor->getRed(), $this->backgroundColor->getGreen(), $this->backgroundColor->getBlue() ) );
+            $this->logoFile = $logo->getLocalFile();
+            $logoImage = Image::getInstance();
+            $imageType = 'png';
+            $fileEnding = 'png';
 
-            $tmpLogoPath = PIMCORE_WEB_ROOT . '/var/tmp/asset-cache/';
+            if( str_contains( $logo->getMimeType(), 'svg') ){
+                $imageType = 'original';
+                $fileEnding = 'svg';
+            }else{
+                // Load full path
+                $logoImage->load( $this->logoFile );
+                $logoImage->load( $logo->getLocalFile() );
 
-            $logoImage->save($tmpLogoPath . '/qr-' . $logo->getId() . '.png', 'png');
-
-            $this->logo = $tmpLogoPath . '/qr-' . $logo->getId() . '.png';
+                $logoImage->contain( $this->logoSizes[ $this->size ][ 'contain' ], $this->logoSizes[ $this->size ][ 'contain' ], true );
+                $logoImage->frame( $this->logoSizes[ $this->size ][ 'frame' ], $this->logoSizes[ $this->size ][ 'frame' ] );
+                $logoImage->setBackgroundColor( sprintf( "#%02x%02x%02x", $this->backgroundColor->getRed(), $this->backgroundColor->getGreen(), $this->backgroundColor->getBlue() ) );
+                $tmpLogoPath = PIMCORE_WEB_ROOT . '/var/tmp/asset-cache';
+                $logoImage->save( $tmpLogoPath . '/qr-' . $logo->getId() . '.' . $fileEnding, $imageType );
+                $this->logoFile = $tmpLogoPath . '/qr-' . $logo->getId() . '.' . $fileEnding;
+            }
         }
 
     }
 
-    public function getQrDataImage(){
+    /**
+     * @return null
+     */
+    private function getLogo(){
+        return $this->logoFile;
+    }
+
+    /**
+     * @return \Endroid\QrCode\Builder\BuilderInterface
+     */
+    public function getQrDataImage( string $imageType = 'png' ){
+        $writer = new PngWriter();
+        if( $imageType == 'svg' ){
+            $writer = new SvgWriter();
+        }
 
         // Generate QR Code
         $qrCodeImage = Builder::create()
-            ->writer(new PngWriter())
+            ->writer($writer)
             ->data($this->qrData)
             ->encoding(new Encoding('UTF-8'))
             ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
@@ -170,17 +209,24 @@ class QrGeneratorModel
             ->backgroundColor( $this->getBackgroundColor() )
             ->size($this->size);
 
-        if( $this->logo != '' ){
-            $qrCodeImage->logoPath( $this->logo );
+        if( $this->getLogo() ){
+            $qrCodeImage
+                ->logoPath( $this->getLogo() )
+                ->logoResizeToHeight( 80 )
+                ->logoResizeToWidth( 80 )
+            ;
         }
 
         //$this->qrDataImage = $qrCodeImage;
         return $qrCodeImage;
     }
 
-    public function buildQrCode(){
+    /**
+     * @return \Endroid\QrCode\Writer\Result\ResultInterface
+     */
+    public function buildQrCode( string $imageType = 'png' ){
 
-        $qr = $this->getQrDataImage();
+        $qr = $this->getQrDataImage( $imageType );
         return $qr->build();
 
     }

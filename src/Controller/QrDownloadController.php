@@ -13,7 +13,9 @@ namespace Pimcorecasts\Bundle\QrCode\Controller;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
-use Pimcorecasts\Bundle\QrCode\Model\QrCodeObject;
+
+use Pimcore\Model\DataObject\Data\Hotspotimage;
+use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\Model\QrGeneratorModel;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -26,23 +28,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class QrDownloadController extends AbstractQrCodeController
 {
-
-
-    private QrDataService $qrDataService;
-
-    public function __construct(QrDataService $qrDataService)
+    public function __construct( private QrDataService $qrDataService )
     {
-        $this->qrDataService = $qrDataService;
     }
 
     /**
-     * @Route("/admin/qr~-~download/{object}", options={"expose"=true}, name="qr-code-download")
+     * @Route("/admin/qr~-~download/{object}/{imageType?}", options={"expose"=true}, name="qr-code-download")
+     *
+     * @param Request $request
+     * @param QrCode $object
+     * @return StreamedResponse
      */
-    public function defaultUrlAction(Request $request, QrCodeObject $object )
+    public function defaultUrlAction(Request $request, QrCode $object, string $imageType = 'png' )
     {
         $size = $object->getQrDownloadSize() ?? 300;
-
-        $response = new StreamedResponse(function() use ( $object, $size ){
+        $response = new StreamedResponse( function() use ( $object, $size, $imageType ){
             $outputStream = fopen( 'php://output', 'wb' );
 
             $qrData = $this->qrDataService->getQrCodeData( $object );
@@ -52,24 +52,21 @@ class QrDownloadController extends AbstractQrCodeController
             $qrCode->setForegroundColor( $object->getForegroundColor() );
             $qrCode->setBackgroundColor( $object->getBackgroundColor() );
 
-            $qrCodeImage = $qrCode->buildQrCode();
+            if( ($logoAsset = $object->getLogo()) instanceof Hotspotimage){
+                $qrCode->setLogo( $logoAsset->getImage() );
+            }
+            $qrCodeImage = $qrCode->buildQrCode( imageType: $imageType );
 
-            $outputStream = fputs( $outputStream, $qrCodeImage->getString() );
-            //stream_copy_to_stream( $qrCodeImage, $outputStream );
-
-        }, StreamedResponse::HTTP_PARTIAL_CONTENT, [
-            'Accept-Ranges' => 'bytes',
-            'Content-Type' => 'application/force-download',
-            //'Content-Length' => $length,
-            //'Content-Range' => sprintf( 'bytes %d-%d/%d', $rangeStart,$rangeEnd, $fileSize ),
-            'Connection' => 'Close'
-        ]);
+            fputs( $outputStream, $qrCodeImage->getString() );
+            fclose( $outputStream );
+        });
 
         $disposition = HeaderUtils::makeDisposition(
             HeaderUtils::DISPOSITION_ATTACHMENT,
-            'qr-code-' . $size .'.png'
+            'qr-code-' . $size .'.' . $imageType
         );
         $response->headers->set('Content-Disposition', $disposition);
+        $response->headers->set('Content-Type', 'application/force-download');
 
         return $response;
     }

@@ -7,7 +7,6 @@
  */
 namespace Pimcorecasts\Bundle\QrCode\LinkGenerator;
 
-
 use http\Exception\InvalidArgumentException;
 use Pimcore\Model\DataObject\ClassDefinition\LinkGeneratorInterface;
 use Pimcore\Model\DataObject\Concrete;
@@ -58,10 +57,8 @@ class QrCodeLinkGenerator implements LinkGeneratorInterface{
 
         return $this->pimcoreUrl->__invoke([
             'identifier' => $slug
-        ], 'qr-code');
+        ], 'qr-code', true);
 
     }
-
-
 
 }

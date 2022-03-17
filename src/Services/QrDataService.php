@@ -13,21 +13,28 @@ use Pimcore;
 use Pimcore\Model\DataObject\Objectbrick\Data\QrLocation;
 use Pimcore\Model\DataObject\Objectbrick\Data\QrUrl;
 use Pimcore\Model\DataObject\Objectbrick\Data\QrVCard;
+use Pimcore\Model\DataObject\Objectbrick\Data\QrEvent;
 use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
 use Symfony\Component\HttpFoundation\RequestStack;
-
 class QrDataService
 {
-    private $qrCodeLinkGenerator;
     private $request;
 
-    public function __construct( QrCodeLinkGenerator $qrCodeLinkGenerator, RequestStack $requestStack )
+    /**
+     * @param QrCodeLinkGenerator $qrCodeLinkGenerator
+     * @param RequestStack $requestStack
+     */
+    public function __construct( private QrCodeLinkGenerator $qrCodeLinkGenerator, private RequestStack $requestStack )
     {
-        $this->qrCodeLinkGenerator = $qrCodeLinkGenerator;
-        $this->request = $requestStack->getCurrentRequest();
+        $this->request = $this->requestStack->getCurrentRequest();
     }
 
+    /**
+     * @param QrCode $qrCodeObject
+     * @return string|null
+     * @throws \Exception
+     */
     public function getQrCodeData( QrCode $qrCodeObject ){
 
         $uriAndScheme = Pimcore\Tool::getHostUrl();
@@ -46,7 +53,6 @@ class QrDataService
             if( $qrCodeObject->getUseStatic() ){
                 // data is url to server
                 $qrData = $this->getVCardData( $qrCodeObject );
-
             }
 
         // QR Code URL
@@ -61,7 +67,12 @@ class QrDataService
         }elseif( $qrContent->getQrLocation() ){
 
             if( $qrCodeObject->getUseStatic() ){
-                $qrData = $this->getGeoLocation($qrContent->getQrLocation());
+                $qrData = $this->getGeoLocation( $qrContent->getQrLocation() );
+            }
+        }elseif( $qrContent->getQrEvent() ){
+
+            if( $qrCodeObject->getUseStatic() ){
+                $qrData = $this->getIcalData( $qrContent->getQrEvent() );
             }
 
         }else{
@@ -72,7 +83,7 @@ class QrDataService
     }
 
     /**
-     * @param QrCodeUrl $urlObject
+     * @param QrUrl $urlObject
      * @param string $default
      * @return string|null
      * @throws \Exception
@@ -87,7 +98,6 @@ class QrDataService
 
         return $qrData;
     }
-
 
     /**
      * @param QrVCard $qrObject
@@ -133,6 +143,10 @@ class QrDataService
         return implode( "\r\n", $qrData);
     }
 
+    /**
+     * @param QrLocation $qrLocation
+     * @return string|null
+     */
     public function getGeoLocation( QrLocation $qrLocation ) : ?string
     {
 
@@ -146,4 +160,49 @@ class QrDataService
         return $link;
     }
 
+
+    public function getIcalData( QrCode $qrObject ) : ?string {
+        $qrEvent = $qrObject->getQrType()->getQrEvent();
+        /**
+         * BEGIN:VCALENDAR
+         * VERSION:2.0
+         * PRODID:Cal_App//Daily@Planet // Hier wird der Name oder die Adresse des Erstellers bzw. der verwendeten Anwendung eingetragen.
+         * METHOD:PUBLISH // Zeigt an, wie dem Empfänger der Eintrag übermittelt wird. Dabei gibt es zwei Arten: Mit PUBLISH erscheint ein Eintrag sofort, während man den Termin mit REQUEST in eine Anfrage verpackt.
+         * BEGIN:VEVENT // Diese Zeile markiert den Beginn des Bereichs, der die relevanten Daten des Termins enthält.
+         * UID:123456789@example.com // Jede ics-File und damit jeder Kalendereintrag benötigt einen unverwechselbaren Unique Identifier.
+         * LOCATION:Metropolis // An dieser Stelle nennt man den Veranstaltungsort, wobei man selbst entscheiden kann, wie genau.
+         * SUMMARY:Meeting // Der Eintrag vermittelt eine kurze Zusammenfassung zum Termin.
+         * DESCRIPTION:Kick-off Meeting // An dieser Stelle erfolgt eine ausführliche Beschreibung, die nur zu sehen ist, wenn der Termineintrag geöffnet wird.
+         * CLASS:PUBLIC // Hier entscheidet sich, ob der Termin öffentlich (PUBLIC) oder privat (PRIVATE) gespeichert werden soll.
+         *
+         * DTSTART:20191101T100000Z
+         * DTEND: 20191101T120000Z
+         *
+         * DTSTAMP: 20191027T155954Z // Der Zeitstempel enthält die Information, wann der Kalendereintrag erstellt wurde.
+         *
+         * END:VEVENT
+         * END:VCALENDAR
+         */
+
+        $qrData = [];
+        $qrData[] = 'BEGIN:VCALENDAR';
+        $qrData[] = 'VERSION:2.0';
+
+        $qrData[] = 'METHOD:PUBLISH';
+        $qrData[] = 'BEGIN:VEVENT';
+
+        $qrData[] = 'UID:' . $qrEvent->getBaseObject()->getId();
+
+        $qrData[] = 'SUMMARY:' . $qrEvent->getName();
+        $qrData[] = 'CLASS:PUBLIC';
+
+        $qrData[] = 'DTSTART:' . $qrEvent->getFromDate();
+        $qrData[] = 'DTEND:' . $qrEvent->getToDate();
+        $qrData[] = 'DTSTAMP:' . Carbon::createFromTimestamp( $qrEvent->getModificationDate() )->format("Ymd\THis\Z");
+
+        $qrData[] = 'END:VEVENT';
+        $qrData[] = 'END:VCALENDAR';
+
+        return implode( "\r\n", $qrData);
+    }
 }

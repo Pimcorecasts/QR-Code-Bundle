@@ -4,6 +4,11 @@ services:
         autoconfigure: true
         public: false
 
+    Pimcorecasts\Bundle\QrCode\Command\:
+        resource: '../../Command/*'
+        public: true
+        tags: [ 'console.command' ]
+
     Pimcorecasts\Bundle\QrCode\Controller\:
         resource: '../../Controller'
         public: true
@@ -12,7 +17,7 @@ services:
     Pimcorecasts\Bundle\QrCode\Installer\Installer:
         public: true
         arguments:
-            $bundle: "@=service('kernel').getBundle('QrCodeBundle')"
+            $bundle: "@=service('kernel').getBundle('QrCode')"
 
 # Services
     Pimcorecasts\Bundle\QrCode\Services\QrDataService:

@@ -9,6 +9,8 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
+use Pimcore\Model\Asset;
+use Pimcore\Model\DataObject\Data\Hotspotimage;
 use Pimcore\Model\DataObject\QrCode;
 use Pimcore\Model\DataObject\Service;
 use Pimcorecasts\Bundle\QrCode\LinkGenerator\QrCodeLinkGenerator;
@@ -17,19 +19,13 @@ use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 // Defult uses
 
 
 class QrPreviewController extends AbstractQrCodeController
 {
-
-
-    private QrDataService $qrDataService;
-
-    public function __construct(QrDataService $qrDataService)
+    public function __construct( private QrDataService $qrDataService )
     {
-        $this->qrDataService = $qrDataService;
     }
 
     /**
@@ -41,7 +37,7 @@ class QrPreviewController extends AbstractQrCodeController
         $context = json_decode($request->get('context'), true);
         // get the current editing data, not the saved one!
         /**
-         * @var QrCodeUrl
+         * @var QrCode
          */
         $object = Service::getElementFromSession('object', $context['objectId']);
         if( is_null( $object ) ){
@@ -55,7 +51,11 @@ class QrPreviewController extends AbstractQrCodeController
         $qrCode->setForegroundColor( $object->getForegroundColor() );
         $qrCode->setBackgroundColor( $object->getBackgroundColor() );
 
-        $qrCodeImage = $qrCode->buildQrCode();
+        if( ($logoAsset = $object->getLogo()) instanceof Hotspotimage ){
+            $qrCode->setLogo( $logoAsset->getImage() );
+        }
+
+        $qrCodeImage = $qrCode->buildQrCode( imageType: 'svg' );
 
         // Return QR Code (image)
         return new Response($qrCodeImage->getString(), 200, [

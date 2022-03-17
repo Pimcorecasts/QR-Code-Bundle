@@ -9,9 +9,7 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
-
-use Pimcore\Model\DataObject\QrCodeUrl;
-use Pimcore\Model\DataObject\QrVCard;
+use Pimcore\Model\DataObject\QrCode;
 use Pimcorecasts\Bundle\QrCode\Services\QrDataService;
 use Pimcorecasts\Bundle\QrCode\Services\UrlSlugResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,11 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class QrCodeController extends AbstractQrCodeController
 {
 
-    private QrDataService $qrDataService;
-
-    public function __construct(QrDataService $qrDataService)
+    public function __construct( private QrDataService $qrDataService )
     {
-        $this->qrDataService = $qrDataService;
     }
 
     /**
@@ -42,74 +37,50 @@ class QrCodeController extends AbstractQrCodeController
         // Default Url / Document
         $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
 
-        if ($qrObject = QrCodeUrl::getById($slugData->getObjectId())) {
+        if ($qrObject = QrCode::getById($slugData->getObjectId())) {
 
-            $url = $this->qrDataService->getUrlData( $qrObject );
+            // Url
+            if( $qrObject->getQrType()->getQrUrl() ){
+                $slug = '';
+                if( !empty( $qrObject->getSlug() ) ){
+                    $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
+                }
+                $url = $this->qrDataService->getUrlData( $qrObject );
+                if( $qrObject->getAnalytics() ){
+                    $params = [
+                        'source=mobile',
+                        'medium=qr-code',
+                        'name=' . $slug
+                    ];
 
-            $slug = '';
-            if( !empty( $qrObject->getSlug() ) ){
-                $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
+                    $url = $url . '?' . implode( '&', $params );
+                }
+                return $this->redirect( $url );
+
+            // VCARD
+            }elseif( $qrObject->getQrType()->getQrLocation() ){
+                $data = $this->qrDataService->getVCardData( $qrObject );
+                return new Response($data, Response::HTTP_OK, [
+                    'Content-Type' => 'text/vcard'
+                ]);
+
+            // Location
+            }elseif( $qrObject->getQrType()->getQrLocation() ){
+                return $this->redirect( $this->qrDataService->getGeoLocation( $qrObject->getQrType()->getQrLocation() ) );
+
+            // Event
+            }elseif( $qrObject->getQrType()->getQrEvent() ){
+                $data = $this->qrDataService->getIcalData( $qrObject );
+                return new Response($data, Response::HTTP_OK, [
+                    'Content-Type' => 'text/calendar'
+                ]);
             }
 
-            $params = [];
-            if( $qrObject->getAnalytics() ){
-                $params = [
-                    'source=mobile',
-                    'medium=qr-code',
-                    'name=' . $slug
-                ];
-
-                $url = $url . '?' . implode( '&', $params );
-            }
-
-            return $this->redirect( $url );
         }
 
         throw new NotFoundHttpException('QrCode Url Object not found');
     }
 
-
-    /**
-     * @Route("/qr~-~vcard/{identifier?}", name="vcard")
-     * Default Url und übernommene qr-codes
-     */
-    public function vcardAction(Request $request, $identifier = null)
-    {
-        // Get the VCard Slug
-        $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
-
-        if ($qrObject = QrVCard::getById( $slugData->getObjectId() ) ) {
-            $data = $this->qrDataService->getVCardData( $qrObject );
-            return new Response($data, Response::HTTP_OK, [
-                'Content-Type' => 'text/vcard'
-            ]);
-        }
-
-        throw new NotFoundHttpException('QrCode Url Object not found');
-    }
-
-    /**
-     * @Route("/qr~-~location/{identifier?}", name="location")
-     * Default Url und übernommene qr-codes
-     */
-    public function locationAction( Request $request, $identifier = null)
-    {
-        // Get the Location Slug
-        $slugData = UrlSlugResolver::resolveSlug('/' . $identifier);
-
-
-
-        throw new NotFoundHttpException('QrCode Url Object not found');
-    }
-
-    /**
-     * @Route("/qr~-~event/{identifier?}", name="event")
-     * Default Url und übernommene qr-codes
-     */
-    public function eventAction($identifier = null)
-    {
-        // event
-    }
 
 
     /**
