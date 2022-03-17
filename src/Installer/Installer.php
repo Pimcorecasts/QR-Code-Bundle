@@ -7,6 +7,7 @@
  */
 namespace Pimcorecasts\Bundle\QrCode\Installer;
 
+
 use Pimcorecasts\Bundle\QrCode\Migrations\Version20211201000000;
 use Pimcore\Model\DataObject;
 use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
@@ -14,7 +15,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
-class Installer extends SettingsStoreAwareInstaller
+class Installer extends AbstractInstaller
 {
     private $installerFiles = [
         'class' => [
@@ -78,6 +79,7 @@ class Installer extends SettingsStoreAwareInstaller
     }
 
     /**
+
      * @return bool
      */
     public function needsReloadAfterInstall()
@@ -88,6 +90,7 @@ class Installer extends SettingsStoreAwareInstaller
     /**
      * @return bool
      */
+
     public function isInstalled()
     {
         $isInstalled = true;
