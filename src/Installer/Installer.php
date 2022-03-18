@@ -98,6 +98,7 @@ class Installer extends SettingsStoreAwareInstaller
             !DataObject\ClassDefinition::getByName('QrCode') ||
 
             !DataObject\Objectbrick\Definition::getByKey('QrLocation') ||
+            !DataObject\Objectbrick\Definition::getByKey('QrEvent') ||
             !DataObject\Objectbrick\Definition::getByKey('QrUrl') ||
             !DataObject\Objectbrick\Definition::getByKey('QrVCard')
         ) {
