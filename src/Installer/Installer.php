@@ -49,7 +49,7 @@ class Installer extends SettingsStoreAwareInstaller
             if( $type == 'objectbrick' ){
                 foreach( $items as $item ){
                     // Install Objectbricks
-                    $objectBrickInstaller = Process::fromShellCommandline($excutable . " bin/console " . $currentFolder . '/classes/' . $item);
+                    $objectBrickInstaller = Process::fromShellCommandline($excutable . " " . PIMCORE_CONSOLE . " pimcore:definition:import:objectbrick " . $currentFolder . '/classes/' . $item);
                     $objectBrickInstaller->run();
 
                     if (!$objectBrickInstaller->isSuccessful()) {
@@ -59,7 +59,7 @@ class Installer extends SettingsStoreAwareInstaller
             }else{
                 foreach( $items as $item ){
                     // Install classes
-                    $objectInstaller = Process::fromShellCommandline( $excutable . " bin/console " . $currentFolder . '/classes/' . $item);
+                    $objectInstaller = Process::fromShellCommandline( $excutable . " " . PIMCORE_CONSOLE .  " pimcore:definition:import:class " . $currentFolder . '/classes/' . $item);
                     $objectInstaller->run();
 
                     if (!$objectInstaller->isSuccessful()) {
