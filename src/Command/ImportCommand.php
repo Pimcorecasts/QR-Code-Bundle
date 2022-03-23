@@ -29,7 +29,7 @@ class ImportCommand extends AbstractCommand
     public function execute( InputInterface $input, OutputInterface $output )
     {
 
-        $filePath = PIMCORE_PRIVATE_VAR . '/config/qrcodes.php';
+        $filePath = PIMCORE_PRIVATE_VAR . '/config/qrcode.php';
         $this->writeComment( $filePath);
 
         if( file_exists( $filePath ) ){
