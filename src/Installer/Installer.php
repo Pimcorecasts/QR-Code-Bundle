@@ -44,12 +44,13 @@ class Installer extends SettingsStoreAwareInstaller
         $excutable = $this->params->has('pimcore_executable_php') ? $this->params->get('pimcore_executable_php') : '';
 
         $currentFolder = __DIR__;
+        $consolePath = PIMCORE_PROJECT_ROOT . '/bin/console';
 
         foreach( $this->installerFiles as $type => $items ){
             if( $type == 'objectbrick' ){
                 foreach( $items as $item ){
                     // Install Objectbricks
-                    $objectBrickInstaller = Process::fromShellCommandline($excutable . " " . PIMCORE_CONSOLE . " pimcore:definition:import:objectbrick " . $currentFolder . '/classes/' . $item);
+                    $objectBrickInstaller = Process::fromShellCommandline($excutable . " " . $consolePath . " pimcore:definition:import:objectbrick " . $currentFolder . '/classes/' . $item);
                     $objectBrickInstaller->run();
 
                     if (!$objectBrickInstaller->isSuccessful()) {
@@ -59,7 +60,7 @@ class Installer extends SettingsStoreAwareInstaller
             }else{
                 foreach( $items as $item ){
                     // Install classes
-                    $objectInstaller = Process::fromShellCommandline( $excutable . " " . PIMCORE_CONSOLE .  " pimcore:definition:import:class " . $currentFolder . '/classes/' . $item);
+                    $objectInstaller = Process::fromShellCommandline( $excutable . " " . $consolePath .  " pimcore:definition:import:class " . $currentFolder . '/classes/' . $item);
                     $objectInstaller->run();
 
                     if (!$objectInstaller->isSuccessful()) {
