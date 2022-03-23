@@ -1,5 +1,11 @@
-# QR-Code-Bundle
+
+# ![Pimcorecasts QR-Code Logo](/docs/images/qr-code-logo-80.jpg) QR-Code-Bundle
 QR-Code Bundle for Pimcore X
+
+```
+Please feel free to use and test this Bundle!
+Help us to support this Bundle!
+```
 
 - QR-Code-Bundle
   - [Features](#features)
@@ -36,7 +42,7 @@ QR-Code Bundle for Pimcore X
 - set foreground / background colors
 - Download the created (preview) QR-Code as PNG or SVG
 
-![Qr Code Object](/docs/qr-code-object.jpg)
+![Qr Code Object](/docs/images/qr-code-object.jpg)
 
 ## Installation
 ```shell
