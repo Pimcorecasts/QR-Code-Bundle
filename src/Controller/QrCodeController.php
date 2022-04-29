@@ -45,8 +45,8 @@ class QrCodeController extends AbstractQrCodeController
                 if( !empty( $qrObject->getSlug() ) ){
                     $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
                 }
-                $url = $this->qrDataService->getUrlData( $qrObject );
-                if( $qrObject->getAnalytics() ){
+                $url = $this->qrDataService->getUrlData( $qrObject->getQrType()->getQrUrl() );
+                if( $qrObject->getQrType()->getQrUrl()->getAnalytics() ){
                     $params = [
                         'source=mobile',
                         'medium=qr-code',
