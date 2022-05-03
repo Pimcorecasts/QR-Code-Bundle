@@ -8,7 +8,7 @@
 namespace Pimcorecasts\Bundle\QrCode;
 
 use Pimcore\Extension\Bundle\AbstractPimcoreBundle;
-use Pimcorecasts\Bundle\QrCode\Installer\Installer;
+use Pimcorecasts\Bundle\QrCode\Installer;
 
 class QrCodeBundle extends AbstractPimcoreBundle
 {
@@ -37,13 +37,14 @@ class QrCodeBundle extends AbstractPimcoreBundle
 
     public function getInstaller()
     {
-        return $this->container->get(Installer::class );
+        return $this->container->get(Installer\Installer::class);
     }
 
 
     public function getVersion()
     {
-        return '1.0';
+        $version = \PackageVersions\Versions::getVersion('pimcorecasts/qr-code-bundle');
+        return $version;
     }
 
     public function getDescription()
