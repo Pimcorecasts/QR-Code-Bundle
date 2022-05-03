@@ -30,6 +30,9 @@ class ImportCommand extends AbstractCommand
     {
 
         $filePath = PIMCORE_PRIVATE_VAR . '/config/qrcode.php';
+        if( !file_exists( $filePath ) ){
+            $filePath = PIMCORE_PRIVATE_VAR . '/config/qrcodes.php';
+        }
         $this->writeComment( $filePath);
 
         if( file_exists( $filePath ) ){
