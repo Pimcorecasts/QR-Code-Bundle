@@ -33,13 +33,13 @@ class QrDownloadController extends AbstractQrCodeController
     }
 
     /**
-     * @Route("/admin/qr~-~download/{object}/{imageType?}", options={"expose"=true}, name="qr-code-download")
+     * @Route("/admin/qr~-~download/{object}/{imageType}", defaults= {"imageType"="png"}, options={"expose"=true}, name="qr-code-download")
      *
      * @param Request $request
      * @param QrCode $object
      * @return StreamedResponse
      */
-    public function defaultUrlAction(Request $request, QrCode $object, string $imageType = 'png' )
+    public function defaultUrlAction(Request $request, QrCode $object, string $imageType )
     {
         $size = $object->getQrDownloadSize() ?? 300;
         $response = new StreamedResponse( function() use ( $object, $size, $imageType ){
