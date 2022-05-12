@@ -58,9 +58,9 @@ class QrDataService
         // QR Code URL
         }elseif( $qrContent->getQrUrl() ){
 
-            $qrData = $this->getUrlData($qrContent->getQrUrl(), '');
+            
             if( $qrCodeObject->getUseStatic() ){
-                $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
+                $qrData = $this->getUrlData($qrContent->getQrUrl(), '');
                 if( $qrCodeObject->getQrType()->getQrUrl()->getAnalytics() ){
                     $slug = '';
                     if( !empty( $qrCodeObject->getSlug() ) ){
