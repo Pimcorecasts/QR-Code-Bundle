@@ -59,8 +59,21 @@ class QrDataService
         }elseif( $qrContent->getQrUrl() ){
 
             $qrData = $this->getUrlData($qrContent->getQrUrl(), '');
-            if( $qrContent->getQrUrl()->getAnalytics() ){
+            if( $qrCodeObject->getUseStatic() ){
                 $qrData = $uriAndScheme . $this->qrCodeLinkGenerator->generate( $qrCodeObject );
+                if( $qrCodeObject->getQrType()->getQrUrl()->getAnalytics() ){
+                    $slug = '';
+                    if( !empty( $qrCodeObject->getSlug() ) ){
+                        $slug = substr( $qrCodeObject->getSlug()[ 0 ]->getSlug(), 1 );
+                    }
+                    $params = [
+                        'source=mobile',
+                        'medium=qr-code',
+                        'name=' . $slug
+                    ];
+
+                    $qrData = $qrData . '?' . implode( '&', $params );
+                }
             }
 
         // QR Code Geo Location
