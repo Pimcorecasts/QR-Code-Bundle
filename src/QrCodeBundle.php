@@ -43,7 +43,13 @@ class QrCodeBundle extends AbstractPimcoreBundle
 
     public function getVersion()
     {
-        $version = \PackageVersions\Versions::getVersion('pimcorecasts/qr-code-bundle');
+        $version = '1.0';
+        if (class_exists('\\Composer\\InstalledVersions')) {
+            $version = \Composer\InstalledVersions::getVersion('pimcorecasts/qr-code-bundle');
+        } else {
+            $version = \PackageVersions\Versions::getVersion('pimcorecasts/qr-code-bundle');
+        }
+
         return $version;
     }
 
