@@ -60,7 +60,8 @@ class QrDataService
 
             
             if( $qrCodeObject->getUseStatic() ){
-                $qrData = $this->getUrlData($qrContent->getQrUrl(), '');
+                $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+                $qrData = $this->getUrlData($qrContent->getQrUrl(), '', ['language' => $lang]);
                 if( $qrCodeObject->getQrType()->getQrUrl()->getAnalytics() ){
                     $slug = '';
                     if( !empty( $qrCodeObject->getSlug() ) ){
@@ -101,12 +102,20 @@ class QrDataService
      * @return string|null
      * @throws \Exception
      */
-    public function getUrlData( QrUrl $qrObject, string $default = '' ) : ?string
+    public function getUrlData( QrUrl $qrObject, string $default = '', array $options = [] ) : ?string
     {
 
         $qrData = $qrObject->getUrlText() ?? $default;
         if( !empty( $qrObject->getUrl() ) ){
-            $qrData = $qrObject->getUrl()->getUrl();
+            if($qrObject->getUrl() instanceof Pimcore\Model\Document) {
+                $qrData = $qrObject->getUrl()->getUrl();
+            } else if($qrObject->getUrl() instanceof Pimcore\Model\DataObject) {
+                $linkGenerator = $qrObject->getUrl()->getClass()->getLinkGenerator();
+                if($linkGenerator instanceof Pimcore\Model\DataObject\ClassDefinition\LinkGeneratorInterface) {
+                    $qrData = $linkGenerator->generate($qrObject->getUrl(), $options);
+                }
+            }
+
         }
 
         return $qrData;

@@ -45,7 +45,9 @@ class QrCodeController extends AbstractQrCodeController
                 if( !empty( $qrObject->getSlug() ) ){
                     $slug = substr( $qrObject->getSlug()[ 0 ]->getSlug(), 1 );
                 }
-                $url = $this->qrDataService->getUrlData( $qrObject->getQrType()->getQrUrl() );
+                
+                $lang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+                $url = $this->qrDataService->getUrlData( $qrObject->getQrType()->getQrUrl(), '', ['language' => $lang] );
                 if( $qrObject->getQrType()->getQrUrl()->getAnalytics() ){
                     $params = [
                         'source=mobile',
