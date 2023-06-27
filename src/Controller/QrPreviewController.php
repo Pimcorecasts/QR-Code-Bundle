@@ -9,6 +9,7 @@
 
 namespace Pimcorecasts\Bundle\QrCode\Controller;
 
+use Elements\Bundle\QrCode\OptionsProvider\DownloadSizeOptionsProvider;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject\Data\Hotspotimage;
 use Pimcore\Model\DataObject\QrCode;
@@ -30,8 +31,9 @@ class QrPreviewController extends AbstractQrCodeController
 
     /**
      * @Route("/admin/qr~-~preview", name="qr-preview")
+     * @throws \Exception
      */
-    public function defaultUrlAction(Request $request, QrCodeLinkGenerator $qrCodeLinkGenerator )
+    public function defaultUrlAction(Request $request, QrCodeLinkGenerator $qrCodeLinkGenerator ): Response
     {
 
         $context = json_decode($request->get('context'), true);
@@ -39,7 +41,7 @@ class QrPreviewController extends AbstractQrCodeController
         /**
          * @var QrCode
          */
-        $object = Service::getElementFromSession('object', $context['objectId']);
+        $object = Service::getElementFromSession('object', $context['objectId'], $request->getSession()->getId());
         if( is_null( $object ) ){
             $object = QrCode::getById( $context['objectId'] );
         }
@@ -58,8 +60,10 @@ class QrPreviewController extends AbstractQrCodeController
         $qrCodeImage = $qrCode->buildQrCode( imageType: 'svg' );
 
         // Return QR Code (image)
-        return new Response($qrCodeImage->getString(), 200, [
-            'Content-Type' => $qrCodeImage->getMimeType()
+        return $this->renderTemplate( '@QrCode/preview/qrcodePreview.html.twig', [
+            'qrCodeImage' => $qrCodeImage->getString(),
+            'qrCodeObject' => $object,
+            'qrCodeLink' => $qrCodeLinkGenerator->generate( $object ),
         ]);
     }
 }

@@ -3,7 +3,7 @@
   "type": "pimcore-bundle",
   "license": "GPL-3.0",
   "require": {
-    "pimcore/pimcore": ">=10.0",
+    "pimcore/pimcore": "^11.0",
     "twig/twig": "^3.0",
     "endroid/qr-code": "^4"
   },

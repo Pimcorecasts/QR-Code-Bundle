@@ -1,6 +1,6 @@
 
 # ![Pimcorecasts QR-Code Logo](/docs/images/qr-code-logo-80.jpg) QR-Code-Bundle
-QR-Code Bundle for Pimcore X
+QR-Code Bundle for Pimcore 11
 
 ```
 Please feel free to use and test this Bundle!
@@ -12,10 +12,8 @@ Help us to support this Bundle!
   - [Installation](#installation)
   - [Migrations](#migrations)
   - [Auto Update Migrations on composer update](#auto-update-migrations-on-composer-update)
-  - [Import Pimcore 6 QR-Codes](#import-pimcore-6-qr-codes)
 
 ## Features
-- Import old (Pimcore 6) QR Codes
 - Create Static or Dynamic QR Codes
 - QR Code Types (Objectbricks)
   - Event
@@ -46,7 +44,7 @@ Help us to support this Bundle!
 
 ## Installation
 ```shell
-COMPOSER_MEMORY_LIMIT=-1 composer require pimcorecasts/qr-code-bundle
+composer require pimcorecasts/qr-code-bundle
 ```
 
 ## Migrations
@@ -59,9 +57,4 @@ bin/console doctrine:migrations:migrate --allow-no-migration --prefix=Pimcorecas
  "post-update-cmd": [
     "./bin/console doctrine:migrations:migrate --allow-no-migration -n"
   ]
-```
-
-## Import Pimcore 6 QR-Codes
-```shell
-bin/console qr-code:import --pimcore6
 ```
