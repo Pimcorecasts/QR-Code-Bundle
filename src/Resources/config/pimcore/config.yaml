@@ -1,0 +1,3 @@
+doctrine_migrations:
+    migrations_paths:
+        'Pimcorecasts\Bundle\QrCode\Migrations': '@QrCodeBundle/Migrations'

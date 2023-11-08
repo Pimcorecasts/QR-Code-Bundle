@@ -127,7 +127,7 @@ class QrDataService
      */
     public function getVCardData( QrCode $qrObject ) : ?string
     {
-        $vardData = $qrObject->getQrType()->getQrVCard();
+        $vcardData = $qrObject->getQrType()->getQrVCard();
 
         /*
          * Description: https://de.wikipedia.org/wiki/VCard
@@ -154,13 +154,32 @@ class QrDataService
         $qrData[] = 'BEGIN:VCARD';
         $qrData[] = 'VERSION:4.0';
 
-        $qrData[] = 'N:' . $vardData->getLastname() . ';' . $vardData->getFirstname() . ';;' . $vardData->getPrefix() . ';' . $vardData->getSuffix();
-        $qrData[] = 'FN:' . $vardData->getCompany();
-        $qrData[] = 'TITLE:' . $vardData->getRole();
+        $qrData[] = 'N:' . $vcardData->getLastname() . ';' . $vcardData->getFirstname() . ';;' . $vcardData->getPrefix() . ';' . $vcardData->getSuffix();
+        if ($vcardData->getCompany()) {
+            $qrData[] = 'ORG:' . $vcardData->getCompany();
+            $qrData[] = 'FN;TYPE=work:' . $vcardData->getPrefix() . ' ' . $vcardData->getFirstname() . ' ' . $vcardData->getLastname() . ' ' . $vcardData->getSuffix();
+        }
+        if ($vcardData->getRole()) {
+            $qrData[] = 'TITLE:' . $vcardData->getRole();
+        }
+        if ($vcardData->getEmail()) {
+            $qrData[] = 'EMAIL;TYPE=work:' . $vcardData->getEmail();
+        }
+        if ($vcardData->getWebsiteUrl()) {
+            $qrData[] = 'URL;TYPE=work:' . $vcardData->getWebsiteUrl();
+        }
+        if ($vcardData->getMobilePhone()) {
+            $qrData[] = 'TEL;TYPE=cell,voice;VALUE=uri:tel:' . $vcardData->getMobilePhone();
+        }
+        if ($vcardData->getPhone()) {
+            $qrData[] = 'TEL;TYPE=work,voice;VALUE=uri:tel:' . $vcardData->getPhone();
+        }
+        if ($vcardData->getStreet() || $vcardData->getZip() || $vcardData->getCity() || $vcardData->getCountry()) {
+            $qrData[] = 'ADR;TYPE=work;LABEL="' . $vcardData->getStreet() . '\\r\\n' . $vcardData->getZip() . ' ' . $vcardData->getCity() . '\\r\\n' . $vcardData->getCountry() . '":;;' . $vcardData->getStreet() . ';' . $vcardData->getCity() . ';;' . $vcardData->getZip() . ';' . $vcardData->getCountry();
+        }
 
         $qrData[] = 'REV:' . Carbon::createFromTimestamp( $qrObject->getModificationDate() )->format("Ymd\THis\Z");
         $qrData[] = 'END:VCARD';
-        //p_r($qrData);
 
         return implode( "\r\n", $qrData);
     }

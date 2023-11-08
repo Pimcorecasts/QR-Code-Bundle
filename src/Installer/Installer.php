@@ -8,7 +8,7 @@
 namespace Pimcorecasts\Bundle\QrCode\Installer;
 
 
-use Pimcorecasts\Bundle\QrCode\Migrations\Version20211201000000;
+use Pimcorecasts\Bundle\QrCode\Migrations\Version20230928084905;
 use Pimcore\Model\DataObject;
 use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
@@ -32,7 +32,7 @@ class Installer extends SettingsStoreAwareInstaller
     public function getLastMigrationVersionClassName(): ?string
     {
         // return fully qualified classname of last migration that should be marked as migrated during install
-        return Version20211201000000::class;
+        return Version20230928084905::class;
     }
 
     public function __construct(private ContainerBagInterface $params, $bundle) {

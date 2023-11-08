@@ -60,7 +60,7 @@ class QrCodeController extends AbstractQrCodeController
                 return $this->redirect( $url );
 
             // VCARD
-            }elseif( $qrObject->getQrType()->getQrLocation() ){
+            }elseif( $qrObject->getQrType()->getQrVCard() ){
                 $data = $this->qrDataService->getVCardData( $qrObject );
                 return new Response($data, Response::HTTP_OK, [
                     'Content-Type' => 'text/vcard'
