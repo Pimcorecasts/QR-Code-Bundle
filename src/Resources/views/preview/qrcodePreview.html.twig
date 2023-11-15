@@ -1,0 +1,52 @@
+{{ qrCodeImage|raw }}
+<style>
+    .btn {
+
+        font-family: Verdana, sans-serif;
+        font-weight: 0;
+        font-size: 14px;
+        color: #fff;
+        background-color: #0066CC;
+        padding: 5px 10px;
+        border: solid #0066cc 1px;
+        box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+        border-radius: 5px;
+        transition: 1000ms;
+        transform: translateY(0);
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+
+        transition: 300ms;
+        transform: translateY(-0px);
+        background-color: #fff;
+        color: #0066cc;
+        border: solid 1px #0066cc;
+    }
+    .btn-row{
+        display: flex;
+        gap: 4px;
+    }
+
+</style>
+<div class="btn-row">
+    {% for size in [150, 300, 600] %}
+    <a href="{{ path('qr-code-download', { object: qrCodeObject.id, size: size }) }}" target="_self" class="btn">
+        PNG {{ size }}px
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:25px; margin-left:0px; margin-right:5px; flex-direction: row-reverse;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+    </a>
+    <a href="{{ path('qr-code-download', { object: qrCodeObject.id, size: size, imageType: 'svg' }) }}" target="_self" class="btn">
+        SVG {{ size }}px
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:25px; margin-left:0px; margin-right:5px; flex-direction: row-reverse;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
+    </a>
+    {% endfor %}
+</div>
