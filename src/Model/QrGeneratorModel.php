@@ -65,7 +65,7 @@ class QrGeneratorModel
         if( !$color ){
             $color = new RgbaColor( 0, 0, 0, 1 );
         }
-        $this->setForegroundColorByRgb( $color->getR(), $color->getG(), $color->getB() );
+        $this->setForegroundColorByRgb( $color->getR(), $color->getG(), $color->getB(), $color->getA() );
     }
 
     /**
@@ -75,10 +75,10 @@ class QrGeneratorModel
      * @param mixed $b
      * @return void
      */
-    public function setForegroundColorByRgb( $r, $g, $b ){
-        $color = new Color( 0, 0, 0 );
+    public function setForegroundColorByRgb( $r, $g, $b, $a ){
+        $color = new Color( 0, 0, 0, 0 );
         if( $r != '' && $g != '' && $b != '' ){
-            $color = new Color( $r, $g, $b );
+            $color = new Color( $r, $g, $b, 127 - floor($a / 2) );
         }
         $this->foregroundColor = $color;
     }
@@ -91,7 +91,7 @@ class QrGeneratorModel
         $color = $this->foregroundColor;
 
         if( !$color ){
-            $color = new Color( 0, 0, 0 );
+            $color = new Color( 0, 0, 0, 0 );
         }
 
         return $color;
@@ -103,9 +103,9 @@ class QrGeneratorModel
      */
     public function setBackgroundColor( RgbaColor $color = null ){
         if( !$color ){
-            $color = new RgbaColor( 255, 255, 255, 1 );
+            $color = new RgbaColor( 255, 255, 255, 255 );
         }
-        $this->setBackgroundColorByRgb( $color->getR(), $color->getG(), $color->getB() );
+        $this->setBackgroundColorByRgb( $color->getR(), $color->getG(), $color->getB(), $color->getA() );
     }
 
     /**
@@ -115,10 +115,10 @@ class QrGeneratorModel
      * @param mixed $b
      * @return void
      */
-    public function setBackgroundColorByRgb( $r, $g, $b ){
-        $color = new Color( 255, 255, 255 );
+    public function setBackgroundColorByRgb( $r, $g, $b, $a ){
+        $color = new Color( 255, 255, 255, 0 );
         if( $r != '' && $g != '' && $b != '' ){
-            $color = new Color( $r, $g, $b );
+            $color = new Color( $r, $g, $b, 127 - floor($a / 2) );
         }
         $this->backgroundColor = $color;
     }
@@ -131,7 +131,7 @@ class QrGeneratorModel
         $color = $this->backgroundColor;
 
         if( !$color ){
-            $color = new Color( 255, 255, 255 );
+            $color = new Color( 255, 255, 255, 0 );
         }
 
         return $color;
